@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tofu", "src\Tofu\Tofu.csproj", "{0C1C7D4D-55C2-4083-BB84-8FA2DC171B0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tofu.Abstractions", "src\Tofu.Abstractions\Tofu.Abstractions.csproj", "{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C1C7D4D-55C2-4083-BB84-8FA2DC171B0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C1C7D4D-55C2-4083-BB84-8FA2DC171B0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C1C7D4D-55C2-4083-BB84-8FA2DC171B0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C1C7D4D-55C2-4083-BB84-8FA2DC171B0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
