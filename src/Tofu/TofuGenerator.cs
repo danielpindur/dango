@@ -25,13 +25,13 @@ public sealed class TofuGenerator : IIncrementalGenerator
         (Compilation compilation, ImmutableArray<ClassDeclarationSyntax> candidates) input)
     {
         var (compilation, candidates) = input;
-        var registrarInterface = compilation.GetTypeByMetadataName(typeof(ITofuMapperRegistrar).AssemblyQualifiedName!);
+        var registrarInterface = compilation.GetTypeByMetadataName(typeof(ITofuMapperRegistrar).FullName!);
 
         if (registrarInterface is null)
         {
             return;
         }
-
+        
         foreach (var cls in candidates)
         {
             var model = compilation.GetSemanticModel(cls.SyntaxTree);
