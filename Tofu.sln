@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tofu", "src\Tofu\Tofu.cspro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tofu.Abstractions", "src\Tofu.Abstractions\Tofu.Abstractions.csproj", "{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1802D0C6-8F63-40F7-A865-03FC7526E6BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tofu.Tests", "test\Tofu.Tests\Tofu.Tests.csproj", "{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,12 @@ Global
 		{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{436B51E5-ACF9-4F52-866B-A4C99F5C01E4} = {1802D0C6-8F63-40F7-A865-03FC7526E6BE}
 	EndGlobalSection
 EndGlobal
