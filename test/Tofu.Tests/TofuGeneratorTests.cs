@@ -21,7 +21,7 @@ public class TofuGeneratorTests
         references.Add(MetadataReference.CreateFromFile(typeof(Abstractions.ITofuMapperRegistrar).Assembly.Location));
 
         var compilation = CSharpCompilation.Create(
-            "TestAssembly",
+            "Test.Assembly",
             syntaxTrees,
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
@@ -132,6 +132,7 @@ namespace Test.Namespace
         
         var generatedSource = result.GeneratedTrees[0].ToString();
         
+        Assert.That(generatedSource, Does.Contain("namespace Test.Assembly.Generated.Tofu.Mappings;"));
         Assert.That(generatedSource, Does.Contain("public static class Test_Namespace_SourceEnumExtensions"));
         Assert.That(generatedSource, Does.Contain("public static Test.Namespace.DestinationEnum ToDestinationEnum(this Test.Namespace.SourceEnum value)"));
         Assert.That(generatedSource, Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException"));
@@ -217,135 +218,5 @@ namespace Test.Namespace
         Assert.That(generatedSource2, Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException"));
     }
     
-    /*
-    [Test]
-    public void Generator_WithMultipleRegistrars_GeneratesMultipleFiles()
-    {
-        var source = @"
-using Tofu.Abstractions;
-
-namespace Test.Namespace
-{
-    public enum SourceEnum { A }
-    public enum DestEnum { A }
-
-    public class Registrar1 : ITofuMapperRegistrar
-    {
-        public void Register(ITofuMapperRegistry registry)
-        {
-            registry.Enum<SourceEnum, DestEnum>();
-        }
-    }
-
-    public class Registrar2 : ITofuMapperRegistrar
-    {
-        public void Register(ITofuMapperRegistry registry)
-        {
-            registry.Enum<SourceEnum, DestEnum>();
-        }
-    }
-}";
-
-        var result = RunGenerator(source);
-
-        Assert.That(result.GeneratedTrees.Length, Is.EqualTo(2));
-        Assert.That(result.Results[0].GeneratedSources.Length, Is.EqualTo(2));
-    }
-
-    [Test]
-    public void Generator_ProducesNoDiagnostics_ForValidInput()
-    {
-        var source = @"
-using Tofu.Abstractions;
-
-namespace Test.Namespace
-{
-    public enum SourceEnum { A }
-    public enum DestEnum { A }
-
-    public class MyRegistrar : ITofuMapperRegistrar
-    {
-        public void Register(ITofuMapperRegistry registry)
-        {
-            registry.Enum<SourceEnum, DestEnum>();
-        }
-    }
-}";
-
-        var result = RunGenerator(source);
-
-        Assert.That(result.Diagnostics.Length, Is.EqualTo(0));
-    }
-
-    [Test]
-    public void Generator_WithClassNotImplementingInterface_GeneratesNothing()
-    {
-        var source = @"
-namespace Test.Namespace
-{
-    public class NotARegistrar
-    {
-        public void Register(object mapper)
-        {
-            // This is not implementing ITofuMapperRegistrar
-        }
-    }
-}";
-
-        var result = RunGenerator(source);
-
-        Assert.That(result.GeneratedTrees.Length, Is.EqualTo(0));
-    }
-
-    [Test]
-    public void Generator_WithNonEnumMethodCall_IgnoresIt()
-    {
-        var source = @"
-using Tofu.Abstractions;
-
-namespace Test.Namespace
-{
-    public class MyRegistrar : ITofuMapperRegistrar
-    {
-        public void Register(ITofuMapperRegistry registry)
-        {
-            mapper.SomeOtherMethod();
-        }
-    }
-}";
-
-        var result = RunGenerator(source);
-
-        // Should generate the class but with no methods
-        Assert.That(result.GeneratedTrees.Length, Is.EqualTo(1));
-        var generatedSource = result.GeneratedTrees[0].ToString();
-        Assert.That(generatedSource, Does.Contain("public static partial class TofuEnumExtensions"));
-    }
-
-    [Test]
-    public void Generator_GeneratedSourceHasCorrectFileName()
-    {
-        var source = @"
-using Tofu.Abstractions;
-
-namespace Test.Namespace
-{
-    public enum SourceEnum { A }
-    public enum DestEnum { A }
-
-    public class MyRegistrar : ITofuMapperRegistrar
-    {
-        public void Register(ITofuMapperRegistry registry)
-        {
-            registry.Enum<SourceEnum, DestEnum>();
-        }
-    }
-}";
-
-        var result = RunGenerator(source);
-
-        var generatedFile = result.Results[0].GeneratedSources[0];
-        Assert.That(generatedFile.HintName, Is.EqualTo("MyRegistrarExtensions.g.cs"));
-    }
-    */
+    
 }
