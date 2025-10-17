@@ -27,7 +27,7 @@ public sealed class TofuGenerator : IIncrementalGenerator
         var (compilation, candidates) = input;
         var registrarInterface = compilation.GetTypeByMetadataName(typeof(ITofuMapperRegistrar).FullName!)!;
 
-        var enumMappingsBySourceEnum = new Dictionary<INamedTypeSymbol, HashSet<EnumMapping>>(SymbolEqualityComparer.Default);
+        var enumMappingsBySourceEnum = new Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>>(SymbolEqualityComparer.Default);
         var registrarInterfaceImplementationFound = false;
         
         foreach (var cls in candidates)
@@ -73,93 +73,143 @@ public sealed class TofuGenerator : IIncrementalGenerator
         GenerateSources(context, compilation, enumMappingsBySourceEnum);
     }
 
-    private static Dictionary<INamedTypeSymbol, HashSet<EnumMapping>> AnalyzeMappings(SourceProductionContext context, IMethodSymbol registerMethod, SemanticModel model)
+    private static Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> AnalyzeMappings(SourceProductionContext context, IMethodSymbol registerMethod, SemanticModel model)
     {
-        var enumMappingsBySourceEnum = new Dictionary<INamedTypeSymbol, HashSet<EnumMapping>>(SymbolEqualityComparer.Default);
+        var enumMappingsBySourceEnum = new Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>>(SymbolEqualityComparer.Default);
         var syntax = registerMethod.DeclaringSyntaxReferences.First().GetSyntax();
         var invocations = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>();
 
         foreach (var invocation in invocations)
         {
             var symbolInfo = model.GetSymbolInfo(invocation);
-            if (symbolInfo.Symbol is not IMethodSymbol { Name: "Enum" } method)
+
+            if (symbolInfo.Symbol is IMethodSymbol { Name: "MapByValue" or "MapByName" } strategyMethod)
             {
+                // Get parent enum to which this strategy belongs
+                var parent = invocation.Parent;
+                while (parent is MemberAccessExpressionSyntax memberAccess)
+                {
+                    if (memberAccess.Expression is InvocationExpressionSyntax parentInvocation)
+                    {
+                        var parentSymbol = model.GetSymbolInfo(parentInvocation);
+                        if (parentSymbol.Symbol is IMethodSymbol { Name: "Enum" } enumMethod)
+                        {
+                            var mappingStrategy = strategyMethod.Name == "MapByValue"
+                                ? MappingStrategy.ByValue
+                                : MappingStrategy.ByName;
+                            
+                            var enumPair = CreateEnumPair(context, parentInvocation, enumMethod);
+                            
+                            // Since we are parsing a tree the enum should have already been added to the dictionary
+                            enumMappingsBySourceEnum[enumPair!.SourceEnum][enumPair].Strategy = mappingStrategy;
+                            
+                            break;
+                        }
+                    }
+                    parent = parent.Parent;
+                }
                 continue;
             }
 
-            if (method.TypeArguments.Length != 2)
+            if (symbolInfo.Symbol is IMethodSymbol { Name: "Enum" } method)
             {
-                continue;
-            }
-
-            if (method.TypeArguments[0] is not INamedTypeSymbol sourceEnum ||
-                method.TypeArguments[1] is not INamedTypeSymbol destinationEnum)
-            {
-                continue;
-            }
-
-            if (sourceEnum.TypeKind != TypeKind.Enum)
-            {
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        DiagnosticDescriptors.InvalidEnumType,
-                        invocation.GetLocation(),
-                        sourceEnum.Name));
-                continue;
-            }
-
-            if (destinationEnum.TypeKind != TypeKind.Enum)
-            {
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        DiagnosticDescriptors.InvalidEnumType,
-                        invocation.GetLocation(),
-                        destinationEnum.Name));
-                continue;
-            }
+                var enumPair = CreateEnumPair(context, invocation, method);
             
-            var mapping = new EnumMapping(sourceEnum, destinationEnum);
-            AddToResolvedMappings(context, invocation.GetLocation(), enumMappingsBySourceEnum, mapping);
+                if (enumPair != null)
+                {
+                    AddToResolvedMappings(
+                        context,
+                        invocation.GetLocation(),
+                        enumMappingsBySourceEnum,
+                        enumPair,
+                        new EnumMapping());
+                }
+            }
         }
         
         return enumMappingsBySourceEnum;
+    }
+    
+    private static EnumPair? CreateEnumPair(
+        SourceProductionContext context,
+        InvocationExpressionSyntax invocation,
+        IMethodSymbol method)
+    {
+        if (method.TypeArguments.Length != 2)
+        {
+            return null;
+        }
+
+        if (method.TypeArguments[0] is not INamedTypeSymbol sourceEnum ||
+            method.TypeArguments[1] is not INamedTypeSymbol destinationEnum)
+        {
+            return null;
+        }
+
+        if (sourceEnum.TypeKind != TypeKind.Enum)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    DiagnosticDescriptors.InvalidEnumType,
+                    invocation.GetLocation(),
+                    sourceEnum.Name));
+            return null;
+        }
+
+        if (destinationEnum.TypeKind != TypeKind.Enum)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    DiagnosticDescriptors.InvalidEnumType,
+                    invocation.GetLocation(),
+                    destinationEnum.Name));
+            return null;
+        }
+    
+        return new EnumPair(sourceEnum, destinationEnum);
     }
 
     private static void AddToResolvedMappings(
         SourceProductionContext context, 
         Location location,
-        Dictionary<INamedTypeSymbol, HashSet<EnumMapping>> enumMappingsBySourceEnum,
+        Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> enumMappingsBySourceEnum,
+        EnumPair enumPair,
         EnumMapping mapping)
     {
-        if (enumMappingsBySourceEnum.ContainsKey(mapping.SourceEnum))
+        if (enumMappingsBySourceEnum.ContainsKey(enumPair.SourceEnum))
         {
-            if (!enumMappingsBySourceEnum[mapping.SourceEnum].Add(mapping))
+            if (enumMappingsBySourceEnum[enumPair.SourceEnum].ContainsKey(enumPair))
             {
                 context.ReportDiagnostic(
                     Diagnostic.Create(
                         DiagnosticDescriptors.DuplicateEnumMapping,
                         location,
-                        mapping.SourceEnum.Name,
-                        mapping.DestinationEnum.Name));
+                        enumPair.SourceEnum.Name,
+                        enumPair.DestinationEnum.Name));
+            }
+            else
+            {
+                enumMappingsBySourceEnum[enumPair.SourceEnum][enumPair] = mapping;
             }
         }
         else
         {
-            enumMappingsBySourceEnum[mapping.SourceEnum] = [mapping];
+            enumMappingsBySourceEnum[enumPair.SourceEnum] = new Dictionary<EnumPair, EnumMapping>()
+                { { enumPair, mapping } };
         }
     }
 
     private static void AppendMappings(
         SourceProductionContext context,
         Location location,
-        Dictionary<INamedTypeSymbol, HashSet<EnumMapping>> enumMappingsBySourceEnum,
-        Dictionary<INamedTypeSymbol, HashSet<EnumMapping>> mappingsToAddBySourceEnum)
+        Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> enumMappingsBySourceEnum,
+        Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> mappingsToAddBySourceEnum)
     {
         foreach (var mappingsToAdd in mappingsToAddBySourceEnum)
         {
             foreach (var enumMapping in mappingsToAdd.Value)
             {
-                AddToResolvedMappings(context, location, enumMappingsBySourceEnum, enumMapping);
+                AddToResolvedMappings(context, location, enumMappingsBySourceEnum, enumMapping.Key, enumMapping.Value);
             }
         }
     }
@@ -167,7 +217,7 @@ public sealed class TofuGenerator : IIncrementalGenerator
     private static void GenerateSources(
         SourceProductionContext context,
         Compilation compilation,
-        Dictionary<INamedTypeSymbol, HashSet<EnumMapping>> enumMappingsBySourceEnum)
+        Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> enumMappingsBySourceEnum)
     {
         var assemblyName = compilation.AssemblyName!;
         
@@ -185,11 +235,10 @@ public sealed class TofuGenerator : IIncrementalGenerator
     private static string GenerateCode(
         string className,
         string assemblyName,
-        IEnumerable<EnumMapping> enumMappings,
+        IEnumerable<KeyValuePair<EnumPair, EnumMapping>> mappingsForEnumPairs,
         SourceProductionContext context)
     {
         // TODO: Change to use Roslyn syntax factory API
-        // TODO: Actual mapping
         // TODO: Map by value or by name
         // TODO: Overrides
         // TODO: Ignore
@@ -206,15 +255,17 @@ public sealed class TofuGenerator : IIncrementalGenerator
         sb.AppendLine($"public static class {className}");
         sb.AppendLine("{");
 
-        foreach (var mapping in enumMappings)
+        foreach (var mappingsForEnumPair in mappingsForEnumPairs)
         {
-            var sourceToDestinationValueMappings = ResolveValueMappings(context, mapping);
+            var enumPair = mappingsForEnumPair.Key;
+            var enumMapping = mappingsForEnumPair.Value;
+            var sourceToDestinationValueMappings = ResolveValueMappings(context, enumPair, enumMapping);
             
             sb.AppendLine($$"""
-                public static {{mapping.DestinationEnum.ToDisplayString()}} To{{mapping.DestinationEnum.Name}}(this {{mapping.SourceEnum.ToDisplayString()}} value) =>
+                public static {{enumPair.DestinationEnum.ToDisplayString()}} To{{enumPair.DestinationEnum.Name}}(this {{enumPair.SourceEnum.ToDisplayString()}} value) =>
                     value switch
                     {
-                    {{GenerateValueMappings(mapping, sourceToDestinationValueMappings)}}
+                    {{GenerateValueMappings(enumPair, sourceToDestinationValueMappings)}}
                     };
                 """);
         }
@@ -243,11 +294,25 @@ public sealed class TofuGenerator : IIncrementalGenerator
     }
     
     private static IEnumerable<(string SourceValue, string DestinationValue)> ResolveValueMappings(
-        SourceProductionContext context, 
+        SourceProductionContext context,
+        EnumPair enumPair,
         EnumMapping mapping)
     {
-        var sourceEnumValues = mapping.SourceEnum.MemberNames;
-        var destinationEnumValues = mapping.DestinationEnum.MemberNames.ToDictionary(x => x);
+        if (mapping.Strategy == MappingStrategy.ByValue)
+        {
+            return ResolveValueMappingsByValue(context, enumPair, mapping);
+        }
+        
+        return ResolveValueMappingsByName(context, enumPair, mapping);
+    }
+
+    private static IEnumerable<(string SourceValue, string DestinationValue)> ResolveValueMappingsByName(
+        SourceProductionContext context,
+        EnumPair enumPair,
+        EnumMapping mapping)
+    {
+        var sourceEnumValues = enumPair.SourceEnum.MemberNames;
+        var destinationEnumValues = enumPair.DestinationEnum.MemberNames.ToDictionary(x => x);
 
         foreach (var enumValue in sourceEnumValues)
         {
@@ -258,21 +323,54 @@ public sealed class TofuGenerator : IIncrementalGenerator
                         DiagnosticDescriptors.MissingMappingForSourceEnumValue,
                         Location.None,
                         enumValue,
-                        mapping.SourceEnum.Name,
-                        mapping.DestinationEnum.Name));
+                        enumPair.SourceEnum.Name,
+                        enumPair.DestinationEnum.Name));
                 continue;
             }
 
-            yield return new ValueTuple<string, string>(enumValue, destinationValue);
+            yield return (enumValue, destinationValue);
         }
     }
 
+    private static IEnumerable<(string SourceValue, string DestinationValue)> ResolveValueMappingsByValue(
+        SourceProductionContext context,
+        EnumPair enumPair,
+        EnumMapping mapping)
+    {
+        var sourceMembers = enumPair.SourceEnum.GetMembers()
+            .OfType<IFieldSymbol>()
+            .Where(f => f.IsConst)
+            .ToDictionary(f => f.ConstantValue);
+
+        var destMembers = enumPair.DestinationEnum.GetMembers()
+            .OfType<IFieldSymbol>()
+            .Where(f => f.IsConst)
+            .ToDictionary(f => f.ConstantValue, f => f.Name);
+
+        foreach (var sourceMember in sourceMembers)
+        {
+            if (!destMembers.TryGetValue(sourceMember.Key!, out var destName))
+            {
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        DiagnosticDescriptors.MissingMappingForSourceEnumValue,
+                        Location.None,
+                        sourceMember.Value.Name,
+                        enumPair.SourceEnum.Name,
+                        enumPair.DestinationEnum.Name));
+                continue;
+            }
+
+            yield return (sourceMember.Value.Name, destName);
+        }
+    }
+    
     private static string GenerateValueMappings(
-        EnumMapping mapping,
+        EnumPair enumPair,
         IEnumerable<(string sourceValue, string destinationValue)> sourceToDestinationMappings)
     {
-        var sourceEnumName = mapping.SourceEnum.ToDisplayString();
-        var destinationEnumName = mapping.DestinationEnum.ToDisplayString();
+        var sourceEnumName = enumPair.SourceEnum.ToDisplayString();
+        var destinationEnumName = enumPair.DestinationEnum.ToDisplayString();
 
         var sb = new System.Text.StringBuilder();
         
@@ -283,12 +381,14 @@ public sealed class TofuGenerator : IIncrementalGenerator
         
         return sb.ToString();
     }
-    
-    private class EnumMapping : IEquatable<EnumMapping>
+
+    private class EnumPair : IEquatable<EnumPair>
     {
         private readonly int _hashCode;
         
-        public EnumMapping(INamedTypeSymbol sourceEnum, INamedTypeSymbol destinationEnum)
+        public EnumPair(
+            INamedTypeSymbol sourceEnum,
+            INamedTypeSymbol destinationEnum)
         {
             SourceEnum = sourceEnum;
             DestinationEnum = destinationEnum;
@@ -303,14 +403,10 @@ public sealed class TofuGenerator : IIncrementalGenerator
         public INamedTypeSymbol SourceEnum { get; }
     
         public INamedTypeSymbol DestinationEnum { get; }
-
-        public HashSet<ValueMapping> Overrides { get; } = new();
-
-        public HashSet<INamedTypeSymbol> IgnoredSourceValues { get; } = new(SymbolEqualityComparer.Default);
-
+        
         public override bool Equals(object? obj)
         {
-            if (obj is not EnumMapping other)
+            if (obj is not EnumPair other)
             {
                 return false;
             }
@@ -318,7 +414,7 @@ public sealed class TofuGenerator : IIncrementalGenerator
             return Equals(other);
         }
 
-        public bool Equals(EnumMapping other)
+        public bool Equals(EnumPair other)
         {
             return other._hashCode == _hashCode;
         }
@@ -327,6 +423,15 @@ public sealed class TofuGenerator : IIncrementalGenerator
         {
             return _hashCode;
         }
+    }
+    
+    private class EnumMapping
+    {
+        public MappingStrategy Strategy { get; set; }
+
+        public HashSet<ValueMapping> Overrides { get; } = new();
+
+        public HashSet<INamedTypeSymbol> IgnoredSourceValues { get; } = new(SymbolEqualityComparer.Default);
     }
 
     private class ValueMapping : IEquatable<ValueMapping>
