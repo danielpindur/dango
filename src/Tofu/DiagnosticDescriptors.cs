@@ -39,4 +39,13 @@ public static class DiagnosticDescriptors
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Both type arguments to the Enum method must be enum types.");
+
+    public static readonly DiagnosticDescriptor MissingMappingForSourceEnumValue = new(
+        id: "TOFU005",
+        title: "Missing mapping for source enum value",
+        messageFormat: "Value '{0}' from enum {1} could not be mapped to a value from enum {2}",
+        category: "Tofu.Generator",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Every value, if not ignored, from source enum {1} must be mapped to a value from destination enum {2}.");
 }

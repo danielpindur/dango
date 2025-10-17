@@ -164,7 +164,8 @@ public sealed class TofuGenerator : IIncrementalGenerator
         }
     }
     
-    private static void GenerateSources(SourceProductionContext context,
+    private static void GenerateSources(
+        SourceProductionContext context,
         Compilation compilation,
         Dictionary<INamedTypeSymbol, HashSet<EnumMapping>> enumMappingsBySourceEnum)
     {
@@ -175,14 +176,17 @@ public sealed class TofuGenerator : IIncrementalGenerator
             var sourceEnum = enumMappingsWithSourceEnum.Key;
             
             var className = GenerateExtensionsClassName(sourceEnum);
-            var generated = GenerateCode(className, assemblyName, enumMappingsWithSourceEnum.Value);
-            
+            var generated = GenerateCode(className, assemblyName, enumMappingsWithSourceEnum.Value, context);
             
             context.AddSource($"{className}.g.cs", generated);
         }
     }
 
-    private static string GenerateCode(string className, string assemblyName, IEnumerable<EnumMapping> enumMappings)
+    private static string GenerateCode(
+        string className,
+        string assemblyName,
+        IEnumerable<EnumMapping> enumMappings,
+        SourceProductionContext context)
     {
         // TODO: Change to use Roslyn syntax factory API
         // TODO: Actual mapping
@@ -204,10 +208,13 @@ public sealed class TofuGenerator : IIncrementalGenerator
 
         foreach (var mapping in enumMappings)
         {
+            var sourceToDestinationValueMappings = ResolveValueMappings(context, mapping);
+            
             sb.AppendLine($$"""
                 public static {{mapping.DestinationEnum.ToDisplayString()}} To{{mapping.DestinationEnum.Name}}(this {{mapping.SourceEnum.ToDisplayString()}} value) =>
                     value switch
                     {
+                    {{GenerateValueMappings(mapping, sourceToDestinationValueMappings)}}
                     };
                 """);
         }
@@ -234,7 +241,49 @@ public sealed class TofuGenerator : IIncrementalGenerator
 
         return namePrefix.Length == 0 ? $"{sourceEnum.Name}Extensions" : $"{namePrefix}_{sourceEnum.Name}Extensions";
     }
+    
+    private static IEnumerable<(string SourceValue, string DestinationValue)> ResolveValueMappings(
+        SourceProductionContext context, 
+        EnumMapping mapping)
+    {
+        var sourceEnumValues = mapping.SourceEnum.MemberNames;
+        var destinationEnumValues = mapping.DestinationEnum.MemberNames.ToDictionary(x => x);
 
+        foreach (var enumValue in sourceEnumValues)
+        {
+            if (!destinationEnumValues.TryGetValue(enumValue!, out var destinationValue))
+            {
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        DiagnosticDescriptors.MissingMappingForSourceEnumValue,
+                        Location.None,
+                        enumValue,
+                        mapping.SourceEnum.Name,
+                        mapping.DestinationEnum.Name));
+                continue;
+            }
+
+            yield return new ValueTuple<string, string>(enumValue, destinationValue);
+        }
+    }
+
+    private static string GenerateValueMappings(
+        EnumMapping mapping,
+        IEnumerable<(string sourceValue, string destinationValue)> sourceToDestinationMappings)
+    {
+        var sourceEnumName = mapping.SourceEnum.ToDisplayString();
+        var destinationEnumName = mapping.DestinationEnum.ToDisplayString();
+
+        var sb = new System.Text.StringBuilder();
+        
+        foreach (var sourceToDestinationMapping in sourceToDestinationMappings)
+        {
+            sb.AppendLine($"{sourceEnumName}.{sourceToDestinationMapping.sourceValue} => {destinationEnumName}.{sourceToDestinationMapping.destinationValue}");
+        }
+        
+        return sb.ToString();
+    }
+    
     private class EnumMapping : IEquatable<EnumMapping>
     {
         private readonly int _hashCode;
@@ -256,6 +305,8 @@ public sealed class TofuGenerator : IIncrementalGenerator
         public INamedTypeSymbol DestinationEnum { get; }
 
         public HashSet<ValueMapping> Overrides { get; } = new();
+
+        public HashSet<INamedTypeSymbol> IgnoredSourceValues { get; } = new(SymbolEqualityComparer.Default);
 
         public override bool Equals(object? obj)
         {
