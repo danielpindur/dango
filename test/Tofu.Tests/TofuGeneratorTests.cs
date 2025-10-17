@@ -148,8 +148,8 @@ namespace Test.Namespace
 {
     public enum SourceEnum { A, B }
     
-    public enum DestEnum1 { X, Y }
-    public enum DestEnum2 { V, W }
+    public enum DestEnum1 { A, B }
+    public enum DestEnum2 { A, B }
 
     public class MyRegistrar : ITofuMapperRegistrar
     {
@@ -169,8 +169,15 @@ namespace Test.Namespace
         var generatedSource = result.GeneratedTrees[0].ToString();
         
         Assert.That(generatedSource, Does.Contain("public static class Test_Namespace_SourceEnumExtensions"));
+        
         Assert.That(generatedSource, Does.Contain("public static Test.Namespace.DestEnum1 ToDestEnum1(this Test.Namespace.SourceEnum value)"));
+        Assert.That(generatedSource, Does.Contain("Test.Namespace.SourceEnum.A => Test.Namespace.DestEnum1.A"));
+        Assert.That(generatedSource, Does.Contain("Test.Namespace.SourceEnum.B => Test.Namespace.DestEnum1.B"));
+        
         Assert.That(generatedSource, Does.Contain("public static Test.Namespace.DestEnum2 ToDestEnum2(this Test.Namespace.SourceEnum value)"));
+        Assert.That(generatedSource, Does.Contain("Test.Namespace.SourceEnum.A => Test.Namespace.DestEnum2.A"));
+        Assert.That(generatedSource, Does.Contain("Test.Namespace.SourceEnum.B => Test.Namespace.DestEnum2.B"));
+        
         Assert.That(generatedSource, Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException"));
     }
     
@@ -183,9 +190,9 @@ using Tofu.Abstractions;
 namespace Test.Namespace
 {
     public enum SourceEnum1 { A, B }
-    public enum SourceEnum2 { C, D }
+    public enum SourceEnum2 { A, B }
     
-    public enum DestEnum { X, Y }
+    public enum DestEnum { A, B }
 
     public class MyRegistrar : ITofuMapperRegistrar
     {
@@ -209,14 +216,16 @@ namespace Test.Namespace
         
         Assert.That(generatedSource1, Does.Contain("public static class Test_Namespace_SourceEnum1Extensions"));
         Assert.That(generatedSource1, Does.Contain("public static Test.Namespace.DestEnum ToDestEnum(this Test.Namespace.SourceEnum1 value)"));
+        Assert.That(generatedSource1, Does.Contain("Test.Namespace.SourceEnum1.A => Test.Namespace.DestEnum.A"));
+        Assert.That(generatedSource1, Does.Contain("Test.Namespace.SourceEnum1.B => Test.Namespace.DestEnum.B"));
         Assert.That(generatedSource1, Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException"));
         
         var generatedSource2 = result.GeneratedTrees[1].ToString();
         
         Assert.That(generatedSource2, Does.Contain("public static class Test_Namespace_SourceEnum2Extensions"));
         Assert.That(generatedSource2, Does.Contain("public static Test.Namespace.DestEnum ToDestEnum(this Test.Namespace.SourceEnum2 value)"));
+        Assert.That(generatedSource2, Does.Contain("Test.Namespace.SourceEnum2.A => Test.Namespace.DestEnum.A"));
+        Assert.That(generatedSource2, Does.Contain("Test.Namespace.SourceEnum2.B => Test.Namespace.DestEnum.B"));
         Assert.That(generatedSource2, Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException"));
     }
-    
-    
 }
