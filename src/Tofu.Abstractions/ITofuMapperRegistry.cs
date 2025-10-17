@@ -2,5 +2,7 @@ namespace Tofu.Abstractions;
 
 public interface ITofuMapperRegistry
 {
-    void Enum<TSource, TDestination>(Action<ITofuEnumMapBuilder<TSource, TDestination>>? configure = null);
+    IEnumMappingConfiguration<TSource, TDestination> Enum<TSource, TDestination>()
+        where TSource : struct, Enum
+        where TDestination : struct, Enum;
 }
