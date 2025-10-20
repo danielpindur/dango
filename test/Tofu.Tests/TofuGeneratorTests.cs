@@ -134,7 +134,10 @@ namespace Test.Namespace
         
         Assert.That(generatedSource, Does.Contain("namespace Test.Assembly.Generated.Tofu.Mappings;"));
         Assert.That(generatedSource, Does.Contain("public static class Test_Namespace_SourceEnumExtensions"));
+        
         Assert.That(generatedSource, Does.Contain("public static Test.Namespace.DestinationEnum ToDestinationEnum(this Test.Namespace.SourceEnum value)"));
+        Assert.That(generatedSource, Does.Contain("public static Test.Namespace.DestinationEnum? ToDestinationEnum(this Test.Namespace.SourceEnum? value)"));
+        
         Assert.That(generatedSource, Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException"));
     }
 
