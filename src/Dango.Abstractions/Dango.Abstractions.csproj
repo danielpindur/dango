@@ -1,11 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- NuGet package metadata -->
+    <PackageId>Dango.Abstractions</PackageId>
+    <Version>0.1.0</Version> <!-- overridden by release-please -->
+    <Authors>Daniel Pindur</Authors>
+    <Company>Daniel Pindur</Company>
+    <Description>Compile-time safe enum mapping abstractions for C# (interfaces, enums, registrars)</Description>
+    <PackageTags>enum;mapping;abstractions;compile-time</PackageTags>
+    <PackageProjectUrl>https://github.com/danielpindur/dango</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/danielpindur/dango</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <Pack>true</Pack>
+    <IncludeBuildOutput>true</IncludeBuildOutput>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Include README in package -->
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>
