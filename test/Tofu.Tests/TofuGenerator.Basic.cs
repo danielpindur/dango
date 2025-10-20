@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Tofu.ErrorHandling;
 
 namespace Tofu.Tests;
 

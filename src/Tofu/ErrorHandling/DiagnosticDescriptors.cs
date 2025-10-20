@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace Tofu;
+namespace Tofu.ErrorHandling;
 
 public static class DiagnosticDescriptors
 {
