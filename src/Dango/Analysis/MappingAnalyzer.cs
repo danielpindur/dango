@@ -1,9 +1,9 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Tofu.ErrorHandling;
-using Tofu.Models;
+using Dango.ErrorHandling;
+using Dango.Models;
 
-namespace Tofu.Analysis;
+namespace Dango.Analysis;
 
 internal static class MappingAnalyzer
 {

@@ -55,3 +55,7 @@ nunit-*.xml
 
 # JetBrains Rider
 .idea/
+
+*.env
+*.user
+appsettings.Development.json

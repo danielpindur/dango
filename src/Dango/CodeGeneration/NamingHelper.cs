@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace Tofu.CodeGeneration;
+namespace Dango.CodeGeneration;
 
 internal static class NamingHelper
 {

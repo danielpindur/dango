@@ -1,4 +1,4 @@
-# Tofu - Compile-Time Safe Enum Mapping for C#
+# Dango - Compile-Time Safe Enum Mapping for C#
 
 ## Why?
 
@@ -10,9 +10,9 @@ You can solve this problem for everything except enums by simply not using AutoM
 
 ## What?
 
-Tofu is a source generator that generates mapping code for enums at compile time, ensuring that all enum values are handled and mapped correctly. If a new value is added to the source enum, the developer will get a compile-time error if the corresponding value is not added to the destination enum as well.
+Dango is a source generator that generates mapping code for enums at compile time, ensuring that all enum values are handled and mapped correctly. If a new value is added to the source enum, the developer will get a compile-time error if the corresponding value is not added to the destination enum as well.
 
-Tofu is designed to be simple and easy to use, with minimal configuration required and allows several options to customize the mapping behavior.
+Dango is designed to be simple and easy to use, with minimal configuration required and allows several options to customize the mapping behavior.
 
 ## Features
 
@@ -27,21 +27,21 @@ Tofu is designed to be simple and easy to use, with minimal configuration requir
 ## Installation
 
 ```bash
-dotnet add package Tofu
+dotnet add package Dango
 ```
 
 ## Usage
 
 ### Basic Setup
 
-Create a registrar class implementing `ITofuMapperRegistrar`:
+Create a registrar class implementing `IDangoMapperRegistrar`:
 
 ```csharp
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
-public class MyRegistrar : ITofuMapperRegistrar
+public class MyRegistrar : IDangoMapperRegistrar
 {
-    public void Register(ITofuMapperRegistry registry)
+    public void Register(IDangoMapperRegistry registry)
     {
         // Basic mapping (by name)
         registry.Enum<SourceStatus, DestinationStatus>();
@@ -78,7 +78,7 @@ public class MyRegistrar : ITofuMapperRegistrar
 
 ### Generated Code
 
-Tofu generates extension methods for each source enum:
+Dango generates extension methods for each source enum:
 
 ```csharp
 // Non-nullable extension
@@ -90,7 +90,7 @@ DestinationStatus? nullableStatus = nullableSource.ToDestinationStatus();
 
 ### Handling Same Enum Names
 
-When enums have the same name in different namespaces, Tofu adds namespace prefixes:
+When enums have the same name in different namespaces, Dango adds namespace prefixes:
 
 ```csharp
 // Api.Status -> Database.Status generates:
@@ -99,11 +99,11 @@ var dbStatus = apiStatus.ToDatabaseStatus();
 
 ## Error Handling
 
-Tofu provides compile-time diagnostics for:
+Dango provides compile-time diagnostics for:
 - Invalid enum types
 - Duplicate mappings
 - Unmapped source values without defaults
 
 ## Generated Code Location
 
-All generated code is placed in `{AssemblyName}.Generated.Tofu.Mappings` namespace.
+All generated code is placed in `{AssemblyName}.Generated.Dango.Mappings` namespace.

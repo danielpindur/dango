@@ -1,8 +1,8 @@
 using Microsoft.CodeAnalysis;
-using Tofu.ErrorHandling;
-using Tofu.Models;
+using Dango.ErrorHandling;
+using Dango.Models;
 
-namespace Tofu.Analysis;
+namespace Dango.Analysis;
 
 internal static class MappingResolver
 {

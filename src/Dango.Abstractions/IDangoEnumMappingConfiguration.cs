@@ -1,11 +1,11 @@
-namespace Tofu.Abstractions;
+namespace Dango.Abstractions;
 
 /// <summary>
 /// Defines the configuration interface for mapping between two enum types.
 /// </summary>
 /// <typeparam name="TSource">The source enum type to map from.</typeparam>
 /// <typeparam name="TDestination">The destination enum type to map to.</typeparam>
-public interface ITofuEnumMappingConfiguration<TSource, TDestination>
+public interface IDangoEnumMappingConfiguration<TSource, TDestination>
     where TSource : struct, Enum
     where TDestination : struct, Enum
 {
@@ -14,14 +14,14 @@ public interface ITofuEnumMappingConfiguration<TSource, TDestination>
     /// For example, if SourceEnum.A = 0 and DestinationEnum.X = 0, they will be mapped together.
     /// </summary>
     /// <returns>The configuration instance for method chaining.</returns>
-    ITofuEnumMappingConfiguration<TSource, TDestination> MapByValue();
+    IDangoEnumMappingConfiguration<TSource, TDestination> MapByValue();
     
     /// <summary>
     /// Configures the mapping to match enum values by their names (default behavior).
     /// For example, SourceEnum.Active will map to DestinationEnum.Active if both exist.
     /// </summary>
     /// <returns>The configuration instance for method chaining.</returns>
-    ITofuEnumMappingConfiguration<TSource, TDestination> MapByName();
+    IDangoEnumMappingConfiguration<TSource, TDestination> MapByName();
     
     /// <summary>
     /// Specifies a default destination value to use when a source enum value has no matching destination value.
@@ -29,7 +29,7 @@ public interface ITofuEnumMappingConfiguration<TSource, TDestination>
     /// </summary>
     /// <param name="defaultValue">The default destination enum value to use for unmapped source values.</param>
     /// <returns>The configuration instance for method chaining.</returns>
-    ITofuEnumMappingConfiguration<TSource, TDestination> WithDefault(TDestination defaultValue);
+    IDangoEnumMappingConfiguration<TSource, TDestination> WithDefault(TDestination defaultValue);
     
     /// <summary>
     /// Provides custom mappings for specific source enum values, overriding the default mapping strategy.
@@ -37,6 +37,6 @@ public interface ITofuEnumMappingConfiguration<TSource, TDestination>
     /// </summary>
     /// <param name="overrides">A dictionary mapping source enum values to their corresponding destination values.</param>
     /// <returns>The configuration instance for method chaining.</returns>
-    ITofuEnumMappingConfiguration<TSource, TDestination> WithOverrides(
+    IDangoEnumMappingConfiguration<TSource, TDestination> WithOverrides(
         IReadOnlyDictionary<TSource, TDestination> overrides);
 }

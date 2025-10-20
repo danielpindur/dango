@@ -1,10 +1,10 @@
-namespace Tofu.Abstractions;
+namespace Dango.Abstractions;
 
 /// <summary>
 /// Provides methods to register enum mappings for code generation.
-/// This registry is used within the <see cref="ITofuMapperRegistrar.Register"/> method to configure mappings.
+/// This registry is used within the <see cref="IDangoMapperRegistrar.Register"/> method to configure mappings.
 /// </summary>
-public interface ITofuMapperRegistry
+public interface IDangoMapperRegistry
 {
     /// <summary>
     /// Registers a mapping between two enum types and returns a configuration object for customization.
@@ -20,7 +20,7 @@ public interface ITofuMapperRegistry
     /// registry.Enum&lt;SourceState, DestinationState&gt;().WithDefault(DestinationState.Unknown);
     /// </code>
     /// </example>
-    ITofuEnumMappingConfiguration<TSource, TDestination> Enum<TSource, TDestination>()
+    IDangoEnumMappingConfiguration<TSource, TDestination> Enum<TSource, TDestination>()
         where TSource : struct, Enum
         where TDestination : struct, Enum;
 }

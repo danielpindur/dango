@@ -1,12 +1,12 @@
-namespace Tofu.Tests;
+namespace Dango.Tests;
 
-public partial class TofuGeneratorTests
+public partial class DangoGeneratorTests
 {
     [Test]
     public void Generator_WithSameEnumNames_GeneratesExtensionClass()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Api 
 {
@@ -28,9 +28,9 @@ namespace Test.Service.Api
 
 namespace Test
 {
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<Api.TestEnum, Service.Api.TestEnum>();
         }
@@ -49,7 +49,7 @@ namespace Test
 
         Assert.That(
             generatedSource,
-            Does.Contain("namespace Test.Assembly.Generated.Tofu.Mappings")
+            Does.Contain("namespace Test.Assembly.Generated.Dango.Mappings")
         );
         Assert.That(
             generatedSource,
@@ -73,7 +73,7 @@ namespace Test
     public void Generator_WithSameEnumNamesSourcePrefix_GeneratesExtensionClass()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Service 
 {
@@ -95,9 +95,9 @@ namespace Test.Service.Api
 
 namespace Test
 {
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<Service.TestEnum, Service.Api.TestEnum>();
         }
@@ -116,7 +116,7 @@ namespace Test
 
         Assert.That(
             generatedSource,
-            Does.Contain("namespace Test.Assembly.Generated.Tofu.Mappings")
+            Does.Contain("namespace Test.Assembly.Generated.Dango.Mappings")
         );
         Assert.That(
             generatedSource,
@@ -140,7 +140,7 @@ namespace Test
     public void Generator_WithSameEnumNamesDestinationPrefix_GeneratesExtensionClass()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Service.Api
 {
@@ -162,9 +162,9 @@ namespace Test.Service
 
 namespace Test
 {
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<Service.Api.TestEnum, Service.TestEnum>();
         }
@@ -183,7 +183,7 @@ namespace Test
 
         Assert.That(
             generatedSource,
-            Does.Contain("namespace Test.Assembly.Generated.Tofu.Mappings")
+            Does.Contain("namespace Test.Assembly.Generated.Dango.Mappings")
         );
         Assert.That(
             generatedSource,

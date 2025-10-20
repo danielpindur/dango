@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace Tofu.Models;
+namespace Dango.Models;
 
 internal sealed class EnumPair : IEquatable<EnumPair>
 {

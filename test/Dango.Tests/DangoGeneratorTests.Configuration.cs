@@ -1,12 +1,12 @@
-namespace Tofu.Tests;
+namespace Dango.Tests;
 
-public partial class TofuGeneratorTests
+public partial class DangoGeneratorTests
 {
     [Test]
     public void Generator_WithMapByName_GeneratesSingleExtensionClassWithMappings()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -14,9 +14,9 @@ namespace Test.Namespace
     
     public enum DestinationEnum { A, B }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum>().MapByName();
         }
@@ -69,7 +69,7 @@ namespace Test.Namespace
     public void Generator_WithMapByValue_GeneratesSingleExtensionClassWithMappings()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -77,9 +77,9 @@ namespace Test.Namespace
     
     public enum DestinationEnum { C, D }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum>().MapByValue();
         }
@@ -132,7 +132,7 @@ namespace Test.Namespace
     public void Generator_WithDefault_GeneratesSingleExtensionClassWithMappings()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -140,9 +140,9 @@ namespace Test.Namespace
     
     public enum DestinationEnum { A, C }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum>()
                 .WithDefault(DestinationEnum.C);
@@ -196,7 +196,7 @@ namespace Test.Namespace
     public void Generator_WithDefaultMapByValue_GeneratesExtensionClass()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -211,9 +211,9 @@ namespace Test.Namespace
         Value2
     }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum>()
                 .WithDefault(DestinationEnum.Value2)
@@ -235,7 +235,7 @@ namespace Test.Namespace
     public void Generator_WithMapByValueDefault_GeneratesExtensionClass()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -250,9 +250,9 @@ namespace Test.Namespace
         Value2
     }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum>()
                 .MapByValue()
@@ -274,7 +274,7 @@ namespace Test.Namespace
     public void Generator_WithMapByNameOverrides_GeneratesExtensionClass()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -290,9 +290,9 @@ namespace Test.Namespace
         B
     }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum>()
                 .MapByValue()
@@ -350,7 +350,7 @@ namespace Test.Namespace
     public void Generator_WithMapByValueOverrides_GeneratesExtensionClass()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -366,9 +366,9 @@ namespace Test.Namespace
         D
     }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum>()
                 .MapByValue()
@@ -426,7 +426,7 @@ namespace Test.Namespace
     public void Generator_WithMapByNameMultipleOverrides_GeneratesExtensionClass()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -442,9 +442,9 @@ namespace Test.Namespace
         B
     }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum>()
                 .MapByValue()
@@ -503,7 +503,7 @@ namespace Test.Namespace
     public void Generator_WithMapByValueMultipleOverrides_GeneratesExtensionClass()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -519,9 +519,9 @@ namespace Test.Namespace
         D
     }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum>()
                 .MapByValue()
