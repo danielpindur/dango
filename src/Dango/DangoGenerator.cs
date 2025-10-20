@@ -1,16 +1,16 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Tofu.Abstractions;
-using Tofu.Analysis;
-using Tofu.CodeGeneration;
-using Tofu.ErrorHandling;
-using Tofu.Models;
+using Dango.Abstractions;
+using Dango.Analysis;
+using Dango.CodeGeneration;
+using Dango.ErrorHandling;
+using Dango.Models;
 
-namespace Tofu;
+namespace Dango;
 
 [Generator(LanguageNames.CSharp)]
-public sealed class TofuGenerator : IIncrementalGenerator
+public sealed class DangoGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -27,7 +27,7 @@ public sealed class TofuGenerator : IIncrementalGenerator
         (Compilation compilation, ImmutableArray<ClassDeclarationSyntax> candidates) input)
     {
         var (compilation, candidates) = input;
-        var registrarInterface = compilation.GetTypeByMetadataName(typeof(ITofuMapperRegistrar).FullName!)!;
+        var registrarInterface = compilation.GetTypeByMetadataName(typeof(IDangoMapperRegistrar).FullName!)!;
 
         var enumMappingsBySourceEnum = new Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>>(SymbolEqualityComparer.Default);
         var registrarInterfaceImplementationFound = false;
@@ -47,7 +47,7 @@ public sealed class TofuGenerator : IIncrementalGenerator
 
             registrarInterfaceImplementationFound = true;
 
-            var registerMethod = symbol.GetMembers(nameof(ITofuMapperRegistrar.Register))
+            var registerMethod = symbol.GetMembers(nameof(IDangoMapperRegistrar.Register))
                 .OfType<IMethodSymbol>()
                 .FirstOrDefault(m => m.Parameters.Length == 1);
 

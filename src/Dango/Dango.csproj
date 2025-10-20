@@ -10,11 +10,11 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\Generated\Tofu</CompilerGeneratedFilesOutputPath>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\Generated\Dango</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tofu.Abstractions\Tofu.Abstractions.csproj" />
+    <ProjectReference Include="..\Dango.Abstractions\Dango.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

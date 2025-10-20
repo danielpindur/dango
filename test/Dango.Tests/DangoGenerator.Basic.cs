@@ -1,11 +1,11 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Tofu.ErrorHandling;
+using Dango.ErrorHandling;
 
-namespace Tofu.Tests;
+namespace Dango.Tests;
 
 [TestFixture]
-public partial class TofuGeneratorTests
+public partial class DangoGeneratorTests
 {
     private static GeneratorDriverRunResult RunGenerator(
         string source,
@@ -26,7 +26,7 @@ public partial class TofuGeneratorTests
 
         references.Add(
             MetadataReference.CreateFromFile(
-                typeof(Abstractions.ITofuMapperRegistrar).Assembly.Location
+                typeof(Abstractions.IDangoMapperRegistrar).Assembly.Location
             )
         );
 
@@ -37,7 +37,7 @@ public partial class TofuGeneratorTests
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
         );
 
-        var generator = new TofuGenerator();
+        var generator = new DangoGenerator();
         var driver = CSharpGeneratorDriver.Create(generator);
 
         driver = (CSharpGeneratorDriver)
@@ -74,11 +74,11 @@ namespace Test.Namespace
     public void Generator_WithRegistrarButInvalidRegisterMethod_GeneratesNoOutputWithError()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
     }
 }";
@@ -96,13 +96,13 @@ namespace Test.Namespace
     public void Generator_WithRegistrarButNoEnumMappings_GeneratesNoOutput()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             // No mappings
         }

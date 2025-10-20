@@ -1,12 +1,12 @@
-namespace Tofu.Tests;
+namespace Dango.Tests;
 
-public partial class TofuGeneratorTests
+public partial class DangoGeneratorTests
 {
     [Test]
     public void Generator_WithEnumMapping_GeneratesExtensionClass()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -22,9 +22,9 @@ namespace Test.Namespace
         Value2
     }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum>();
         }
@@ -43,11 +43,11 @@ namespace Test.Namespace
 
         Assert.That(
             generatedSource,
-            Does.Contain("namespace Test.Assembly.Generated.Tofu.Mappings")
+            Does.Contain("namespace Test.Assembly.Generated.Dango.Mappings")
         );
         Assert.That(
             generatedSource,
-            Does.Not.Contain("namespace Test.Assembly.Generated.Tofu.Mappings;")
+            Does.Not.Contain("namespace Test.Assembly.Generated.Dango.Mappings;")
         );
         Assert.That(
             generatedSource,
@@ -79,7 +79,7 @@ namespace Test.Namespace
     public void Generator_WithSingleSourceAndMultipleDestinationMappings_GeneratesSingleExtensionClassWithMultipleMappings()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -88,9 +88,9 @@ namespace Test.Namespace
     public enum DestinationEnum1 { A, B }
     public enum DestinationEnum2 { A, B }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum, DestinationEnum1>();
             registry.Enum<SourceEnum, DestinationEnum2>();
@@ -163,7 +163,7 @@ namespace Test.Namespace
     public void Generator_WithMultipleSourceMappings_GeneratesMultipleExtensionClasses()
     {
         var source = @"
-using Tofu.Abstractions;
+using Dango.Abstractions;
 
 namespace Test.Namespace
 {
@@ -172,9 +172,9 @@ namespace Test.Namespace
     
     public enum DestinationEnum { A, B }
 
-    public class MyRegistrar : ITofuMapperRegistrar
+    public class MyRegistrar : IDangoMapperRegistrar
     {
-        public void Register(ITofuMapperRegistry registry)
+        public void Register(IDangoMapperRegistry registry)
         {
             registry.Enum<SourceEnum1, DestinationEnum>();
             registry.Enum<SourceEnum2, DestinationEnum>();

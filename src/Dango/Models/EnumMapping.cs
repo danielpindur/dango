@@ -1,4 +1,4 @@
-namespace Tofu.Models;
+namespace Dango.Models;
 
 internal sealed class EnumMapping
 {
