@@ -378,6 +378,16 @@ public sealed class TofuGenerator : IIncrementalGenerator
                     {{GenerateValueMappings(enumPair, sourceToDestinationValueMappings)}}
                     };
                 """);
+            
+            sb.AppendLine($$"""
+                public static {{enumPair.DestinationEnum.ToDisplayString()}}? To{{enumPair.DestinationEnum.Name}}(this {{enumPair.SourceEnum.ToDisplayString()}}? value) =>
+                    if (value.HasValue)
+                    {
+                        return To{{enumPair.DestinationEnum.Name}}(value.Value);
+                    }
+                    
+                    return ({{enumPair.DestinationEnum.ToDisplayString()}})null;
+                """);
         }
 
         sb.AppendLine("}");
