@@ -76,54 +76,67 @@ public sealed class TofuGenerator : IIncrementalGenerator
     private static Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> AnalyzeMappings(SourceProductionContext context, IMethodSymbol registerMethod, SemanticModel model)
     {
         var enumMappingsBySourceEnum = new Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>>(SymbolEqualityComparer.Default);
-        var syntax = registerMethod.DeclaringSyntaxReferences.First().GetSyntax();
-        var invocations = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>();
+        var syntax = registerMethod.DeclaringSyntaxReferences.First().GetSyntax() as MethodDeclarationSyntax;
 
-        foreach (var invocation in invocations)
+        if (syntax?.Body is null)
         {
-            var symbolInfo = model.GetSymbolInfo(invocation);
+            return enumMappingsBySourceEnum;
+        }
+        
+        var rootInvocations = syntax.Body
+            .Statements
+            .OfType<ExpressionStatementSyntax>()
+            .Select(stmt => stmt.Expression)
+            .OfType<InvocationExpressionSyntax>()
+            .ToList();
+        
+        foreach (var rootInvocation in rootInvocations)
+        {
+            var invocationChain = GetInvocationChain(rootInvocation);
 
-            if (symbolInfo.Symbol is IMethodSymbol { Name: "MapByValue" or "MapByName" } strategyMethod)
+            EnumPair? enumPair = null;
+            var enumMapping = new EnumMapping();
+            
+            foreach (var invocation in invocationChain)
             {
-                // Get parent enum to which this strategy belongs
-                var parent = invocation.Parent;
-                while (parent is MemberAccessExpressionSyntax memberAccess)
+                // If we don't have an enum pair set, try to set it based on the current invocation
+                if (enumPair is null)
                 {
-                    if (memberAccess.Expression is InvocationExpressionSyntax parentInvocation)
-                    {
-                        var parentSymbol = model.GetSymbolInfo(parentInvocation);
-                        if (parentSymbol.Symbol is IMethodSymbol { Name: "Enum" } enumMethod)
-                        {
-                            var mappingStrategy = strategyMethod.Name == "MapByValue"
-                                ? MappingStrategy.ByValue
-                                : MappingStrategy.ByName;
-                            
-                            var enumPair = CreateEnumPair(context, parentInvocation, enumMethod);
-                            
-                            // Since we are parsing a tree the enum should have already been added to the dictionary
-                            enumMappingsBySourceEnum[enumPair!.SourceEnum][enumPair].Strategy = mappingStrategy;
-                            
-                            break;
-                        }
-                    }
-                    parent = parent.Parent;
+                    var methodSymbol = model.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
+                    enumPair = CreateEnumPair(context, rootInvocation, methodSymbol);
+                    continue;
                 }
-                continue;
+                
+                // If we already have an enum pair, then this is chained method invocation
+                var chainedSymbol = model.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
+
+                switch (chainedSymbol?.Name)
+                {
+                    case "MapByValue":
+                        enumMapping.Strategy = MappingStrategy.ByValue;
+                        break;
+                    
+                    case "MapByName":
+                        enumMapping.Strategy = MappingStrategy.ByName;
+                        break;
+                    
+                    case "WithDefault":
+                        enumMapping.DefaultValue = ExtractDefaultValue(invocation, model);
+                        break;
+                    
+                    default:
+                        throw new NotImplementedException();
+                }
             }
 
-            if (symbolInfo.Symbol is IMethodSymbol { Name: "Enum" } method)
+            if (enumPair is not null)
             {
-                var enumPair = CreateEnumPair(context, invocation, method);
-            
-                if (enumPair != null)
-                {
-                    AddToResolvedMappings(
-                        context,
-                        invocation.GetLocation(),
-                        enumMappingsBySourceEnum,
-                        enumPair,
-                        new EnumMapping());
-                }
+                AddToResolvedMappings(
+                    context,
+                    rootInvocation.GetLocation(),
+                    enumMappingsBySourceEnum,
+                    enumPair,
+                    enumMapping);
             }
         }
         
@@ -133,15 +146,20 @@ public sealed class TofuGenerator : IIncrementalGenerator
     private static EnumPair? CreateEnumPair(
         SourceProductionContext context,
         InvocationExpressionSyntax invocation,
-        IMethodSymbol method)
+        IMethodSymbol? methodSymbol)
     {
-        if (method.TypeArguments.Length != 2)
+        if (methodSymbol?.Name != "Enum")
+        {
+            return null;
+        }
+        
+        if (methodSymbol.TypeArguments.Length != 2)
         {
             return null;
         }
 
-        if (method.TypeArguments[0] is not INamedTypeSymbol sourceEnum ||
-            method.TypeArguments[1] is not INamedTypeSymbol destinationEnum)
+        if (methodSymbol.TypeArguments[0] is not INamedTypeSymbol sourceEnum ||
+            methodSymbol.TypeArguments[1] is not INamedTypeSymbol destinationEnum)
         {
             return null;
         }
@@ -168,6 +186,57 @@ public sealed class TofuGenerator : IIncrementalGenerator
     
         return new EnumPair(sourceEnum, destinationEnum);
     }
+    
+    private static IEnumerable<InvocationExpressionSyntax> GetInvocationChain(InvocationExpressionSyntax invocation)
+    {
+        var invocationChain = new Stack<InvocationExpressionSyntax>();
+        var current = invocation;
+
+        while (current is not null)
+        {
+            invocationChain.Push(current);
+            
+            if (current.Expression is MemberAccessExpressionSyntax { Expression: InvocationExpressionSyntax inner })
+            {
+                current = inner;
+            }
+            else
+            {
+                current = null;
+            }
+        }
+
+        return invocationChain; // Innermost first: Enum → WithDefault → MapByValue
+    }
+
+    
+    private static string? ExtractDefaultValue(InvocationExpressionSyntax chainedInvocation, SemanticModel model)
+    {
+        if (chainedInvocation.ArgumentList.Arguments.Count == 0)
+        {
+            return null;
+        }
+
+        var argument = chainedInvocation.ArgumentList.Arguments[0].Expression;
+
+        // Try to resolve the argument symbol (e.g. DestinationEnum.Value2)
+        var argumentSymbol = model.GetSymbolInfo(argument).Symbol;
+
+        if (argumentSymbol is IFieldSymbol { IsConst: true } fieldSymbol)
+        {
+            return fieldSymbol.Name;
+        }
+
+        // Fallback: try semantic constant value resolution
+        var constantValue = model.GetConstantValue(argument);
+        if (constantValue.HasValue)
+        {
+            return constantValue.Value?.ToString();
+        }
+
+        return null;
+    }
+
 
     private static void AddToResolvedMappings(
         SourceProductionContext context, 
@@ -239,10 +308,7 @@ public sealed class TofuGenerator : IIncrementalGenerator
         SourceProductionContext context)
     {
         // TODO: Change to use Roslyn syntax factory API
-        // TODO: Map by value or by name
         // TODO: Overrides
-        // TODO: Ignore
-        // TODO: Default
         // TODO: Scoped namespace for compatibility reasons
         // TODO: If enums names are same, we should take first diff in namespace and use that in the method name
         // TODO: Nullable map
@@ -316,7 +382,15 @@ public sealed class TofuGenerator : IIncrementalGenerator
 
         foreach (var enumValue in sourceEnumValues)
         {
-            if (!destinationEnumValues.TryGetValue(enumValue!, out var destinationValue))
+            if (destinationEnumValues.TryGetValue(enumValue!, out var destinationValue))
+            {
+                yield return (enumValue, destinationValue);
+            }
+            else if (mapping.DefaultValue is not null)
+            {
+                yield return (enumValue, mapping.DefaultValue);
+            }
+            else
             {
                 context.ReportDiagnostic(
                     Diagnostic.Create(
@@ -325,10 +399,7 @@ public sealed class TofuGenerator : IIncrementalGenerator
                         enumValue,
                         enumPair.SourceEnum.Name,
                         enumPair.DestinationEnum.Name));
-                continue;
             }
-
-            yield return (enumValue, destinationValue);
         }
     }
 
@@ -349,7 +420,15 @@ public sealed class TofuGenerator : IIncrementalGenerator
 
         foreach (var sourceMember in sourceMembers)
         {
-            if (!destMembers.TryGetValue(sourceMember.Key!, out var destName))
+            if (destMembers.TryGetValue(sourceMember.Key!, out var destName))
+            {
+                yield return (sourceMember.Value.Name, destName);
+            }
+            else if (mapping.DefaultValue is not null)
+            {
+                yield return (sourceMember.Value.Name, mapping.DefaultValue);
+            }
+            else
             {
                 context.ReportDiagnostic(
                     Diagnostic.Create(
@@ -358,10 +437,7 @@ public sealed class TofuGenerator : IIncrementalGenerator
                         sourceMember.Value.Name,
                         enumPair.SourceEnum.Name,
                         enumPair.DestinationEnum.Name));
-                continue;
             }
-
-            yield return (sourceMember.Value.Name, destName);
         }
     }
     
@@ -429,6 +505,8 @@ public sealed class TofuGenerator : IIncrementalGenerator
     {
         public MappingStrategy Strategy { get; set; }
 
+        public string? DefaultValue { get; set; }
+        
         public HashSet<ValueMapping> Overrides { get; } = new();
 
         public HashSet<INamedTypeSymbol> IgnoredSourceValues { get; } = new(SymbolEqualityComparer.Default);

@@ -276,7 +276,7 @@ namespace Test.Namespace
 {
     public enum SourceEnum { A, B }
     
-    public enum DestEnum { B, A }
+    public enum DestEnum { C, D }
 
     public class MyRegistrar : ITofuMapperRegistrar
     {
@@ -297,9 +297,114 @@ namespace Test.Namespace
         Assert.That(generatedSource, Does.Contain("public static class Test_Namespace_SourceEnumExtensions"));
         
         Assert.That(generatedSource, Does.Contain("public static Test.Namespace.DestEnum ToDestEnum(this Test.Namespace.SourceEnum value)"));
-        Assert.That(generatedSource, Does.Contain("Test.Namespace.SourceEnum.A => Test.Namespace.DestEnum.A"));
-        Assert.That(generatedSource, Does.Contain("Test.Namespace.SourceEnum.B => Test.Namespace.DestEnum.B"));
+        Assert.That(generatedSource, Does.Contain("Test.Namespace.SourceEnum.A => Test.Namespace.DestEnum.C"));
+        Assert.That(generatedSource, Does.Contain("Test.Namespace.SourceEnum.B => Test.Namespace.DestEnum.D"));
         
         Assert.That(generatedSource, Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException"));
+    }
+    
+    [Test]
+    public void Generator_WithDefault_GeneratesSingleExtensionClassWithMappings()
+    {
+        var source = @"
+using Tofu.Abstractions;
+
+namespace Test.Namespace
+{
+    public enum SourceEnum { A, B }
+    
+    public enum DestEnum { A, C }
+
+    public class MyRegistrar : ITofuMapperRegistrar
+    {
+        public void Register(ITofuMapperRegistry registry)
+        {
+            registry.Enum<SourceEnum, DestEnum>().WithDefault(DestEnum.C);
+        }
+    }
+}";
+
+        var result = RunGenerator(source);
+
+        Assert.That(result.Diagnostics, Is.Empty);
+        Assert.That(result.Results.Single().GeneratedSources.Single().HintName, Is.EqualTo("Test_Namespace_SourceEnumExtensions.g.cs"));
+        
+        var generatedSource = result.GeneratedTrees[0].ToString();
+        
+        Assert.That(generatedSource, Does.Contain("public static class Test_Namespace_SourceEnumExtensions"));
+        
+        Assert.That(generatedSource, Does.Contain("public static Test.Namespace.DestEnum ToDestEnum(this Test.Namespace.SourceEnum value)"));
+        Assert.That(generatedSource, Does.Contain("Test.Namespace.SourceEnum.A => Test.Namespace.DestEnum.A"));
+        Assert.That(generatedSource, Does.Contain("Test.Namespace.SourceEnum.B => Test.Namespace.DestEnum.C"));
+        
+        Assert.That(generatedSource, Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException"));
+    }
+    
+    [Test]
+    public void Generator_WithDefaultMapByValue_GeneratesExtensionClass()
+    {
+        var source = @"
+using Tofu.Abstractions;
+
+namespace Test.Namespace
+{
+    public enum SourceEnum
+    {
+        Value1,
+        Value3
+    }
+
+    public enum DestinationEnum
+    {
+        Value2
+    }
+
+    public class MyRegistrar : ITofuMapperRegistrar
+    {
+        public void Register(ITofuMapperRegistry registry)
+        {
+            registry.Enum<SourceEnum, DestinationEnum>().WithDefault(DestinationEnum.Value2).MapByValue();
+        }
+    }
+}";
+
+        var result = RunGenerator(source);
+
+        Assert.That(result.Diagnostics, Is.Empty);
+        Assert.That(result.Results.Single().GeneratedSources.Single().HintName, Is.EqualTo("Test_Namespace_SourceEnumExtensions.g.cs"));
+    }
+    
+    [Test]
+    public void Generator_WithMapByValueDefault_GeneratesExtensionClass()
+    {
+        var source = @"
+using Tofu.Abstractions;
+
+namespace Test.Namespace
+{
+    public enum SourceEnum
+    {
+        Value1,
+        Value3
+    }
+
+    public enum DestinationEnum
+    {
+        Value2
+    }
+
+    public class MyRegistrar : ITofuMapperRegistrar
+    {
+        public void Register(ITofuMapperRegistry registry)
+        {
+            registry.Enum<SourceEnum, DestinationEnum>().MapByValue().WithDefault(DestinationEnum.Value2);
+        }
+    }
+}";
+
+        var result = RunGenerator(source);
+
+        Assert.That(result.Diagnostics, Is.Empty);
+        Assert.That(result.Results.Single().GeneratedSources.Single().HintName, Is.EqualTo("Test_Namespace_SourceEnumExtensions.g.cs"));
     }
 }
