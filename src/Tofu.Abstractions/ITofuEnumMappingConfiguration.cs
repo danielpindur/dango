@@ -9,4 +9,7 @@ public interface ITofuEnumMappingConfiguration<TSource, TDestination>
     ITofuEnumMappingConfiguration<TSource, TDestination> MapByName();
     
     ITofuEnumMappingConfiguration<TSource, TDestination> WithDefault(TDestination defaultValue);
+    
+    ITofuEnumMappingConfiguration<TSource, TDestination> WithOverrides(
+        IReadOnlyDictionary<TSource, TDestination> overrides);
 }

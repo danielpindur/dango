@@ -108,24 +108,32 @@ public sealed class TofuGenerator : IIncrementalGenerator
                 }
                 
                 // If we already have an enum pair, then this is chained method invocation
-                var chainedSymbol = model.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
+                var symbolInfo = model.GetSymbolInfo(invocation.Expression);
+                var chainedSymbol = symbolInfo.Symbol as IMethodSymbol;
 
+                // Fallback to candidate symbols if primary resolution fails
+                if (chainedSymbol is null && symbolInfo.CandidateSymbols.Length > 0)
+                {
+                    chainedSymbol = symbolInfo.CandidateSymbols[0] as IMethodSymbol;
+                }
+                
                 switch (chainedSymbol?.Name)
                 {
                     case "MapByValue":
                         enumMapping.Strategy = MappingStrategy.ByValue;
                         break;
-                    
+
                     case "MapByName":
                         enumMapping.Strategy = MappingStrategy.ByName;
                         break;
-                    
+
                     case "WithDefault":
                         enumMapping.DefaultValue = ExtractDefaultValue(invocation, model);
                         break;
-                    
-                    default:
-                        throw new NotImplementedException();
+
+                    case "WithOverrides":
+                        enumMapping.Overrides = ExtractOverrides(invocation, model);
+                        break;
                 }
             }
 
@@ -237,6 +245,43 @@ public sealed class TofuGenerator : IIncrementalGenerator
         return null;
     }
 
+    private static Dictionary<string, string>? ExtractOverrides(
+        InvocationExpressionSyntax invocation,
+        SemanticModel model)
+    {
+        if (invocation.ArgumentList.Arguments.Count != 1)
+        {
+            return null;
+        }
+        
+        var overrides = new Dictionary<string, string>(StringComparer.Ordinal);
+        
+        var dictionaryExpression = invocation.ArgumentList.Arguments[0].Expression;
+
+        // We're looking for: new Dictionary<SourceEnum, DestinationEnum> { { A, B }, { C, D } }
+        if (dictionaryExpression is ObjectCreationExpressionSyntax { Initializer: { } initializer })
+        {
+            foreach (var expression in initializer.Expressions)
+            {
+                // Each initializer should look like { key, value }
+                if (expression is InitializerExpressionSyntax { Expressions.Count: 2 } kvp)
+                {
+                    var sourceValueExpression = kvp.Expressions[0];
+                    var destinationValueExpression = kvp.Expressions[1];
+
+                    var sourceValueSymbol = model.GetSymbolInfo(sourceValueExpression).Symbol as IFieldSymbol;
+                    var destinationValueSymbol = model.GetSymbolInfo(destinationValueExpression).Symbol as IFieldSymbol;
+
+                    if (sourceValueSymbol is { IsConst: true } && destinationValueSymbol is { IsConst: true })
+                    {
+                        overrides.Add(sourceValueSymbol.Name, destinationValueSymbol.Name);
+                    }
+                }
+            }
+        }
+
+        return overrides;
+    }
 
     private static void AddToResolvedMappings(
         SourceProductionContext context, 
@@ -308,7 +353,6 @@ public sealed class TofuGenerator : IIncrementalGenerator
         SourceProductionContext context)
     {
         // TODO: Change to use Roslyn syntax factory API
-        // TODO: Overrides
         // TODO: Scoped namespace for compatibility reasons
         // TODO: If enums names are same, we should take first diff in namespace and use that in the method name
         // TODO: Nullable map
@@ -382,7 +426,12 @@ public sealed class TofuGenerator : IIncrementalGenerator
 
         foreach (var enumValue in sourceEnumValues)
         {
-            if (destinationEnumValues.TryGetValue(enumValue!, out var destinationValue))
+            if (mapping.Overrides is not null &&
+                mapping.Overrides.TryGetValue(enumValue, out var destNameOverride))
+            {
+                yield return (enumValue, destNameOverride!);
+            }
+            else if (destinationEnumValues.TryGetValue(enumValue!, out var destinationValue))
             {
                 yield return (enumValue, destinationValue);
             }
@@ -420,6 +469,11 @@ public sealed class TofuGenerator : IIncrementalGenerator
 
         foreach (var sourceMember in sourceMembers)
         {
+            if (mapping.Overrides is not null &&
+                mapping.Overrides.TryGetValue(sourceMember.Value.Name, out var destNameOverride))
+            {
+                yield return (sourceMember.Value.Name, destNameOverride!);
+            }
             if (destMembers.TryGetValue(sourceMember.Key!, out var destName))
             {
                 yield return (sourceMember.Value.Name, destName);
@@ -507,45 +561,6 @@ public sealed class TofuGenerator : IIncrementalGenerator
 
         public string? DefaultValue { get; set; }
         
-        public HashSet<ValueMapping> Overrides { get; } = new();
-
-        public HashSet<INamedTypeSymbol> IgnoredSourceValues { get; } = new(SymbolEqualityComparer.Default);
-    }
-
-    private class ValueMapping : IEquatable<ValueMapping>
-    {
-        private readonly int _hashCode;
-        
-        public ValueMapping(string sourceValue, string destinationValue)
-        {
-            SourceValue = sourceValue;
-            DestinationValue = destinationValue;
-            
-            _hashCode = StringComparer.Ordinal.GetHashCode(SourceValue);
-        }
-
-        public string SourceValue { get; }
-    
-        public string DestinationValue { get; }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is not ValueMapping other)
-            {
-                return false;
-            } 
-            
-            return Equals(other);
-        }
-
-        public bool Equals(ValueMapping other)
-        {
-            return other._hashCode == _hashCode;
-        }
-
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
+        public Dictionary<string, string>? Overrides { get; set; }
     }
 }
