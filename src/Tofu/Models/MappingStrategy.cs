@@ -1,4 +1,4 @@
-namespace Tofu;
+namespace Tofu.Models;
 
 internal enum MappingStrategy
 {
