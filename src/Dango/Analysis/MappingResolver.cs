@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Dango.ErrorHandling;
 using Dango.Models;
@@ -24,9 +25,18 @@ internal static class MappingResolver
         EnumPair enumPair,
         EnumMapping mapping)
     {
-        var sourceEnumValues = enumPair.SourceEnum.MemberNames;
-        var destinationEnumValues = enumPair.DestinationEnum.MemberNames.ToDictionary(x => x);
-
+        var sourceEnumValues = enumPair.SourceEnum.GetMembers()
+            .OfType<IFieldSymbol>()
+            .Where(f => f.IsConst && f.IsStatic)
+            .Select(f => f.Name)
+            .ToList();
+    
+        var destinationEnumValues = enumPair.DestinationEnum.GetMembers()
+            .OfType<IFieldSymbol>()
+            .Where(f => f.IsConst && f.IsStatic)
+            .Select(f => f.Name)
+            .ToImmutableHashSet();
+        
         foreach (var enumValue in sourceEnumValues)
         {
             if (mapping.Overrides is not null && mapping.Overrides.TryGetValue(enumValue, out var destNameOverride))
@@ -56,12 +66,12 @@ internal static class MappingResolver
     {
         var sourceMembers = enumPair.SourceEnum.GetMembers()
             .OfType<IFieldSymbol>()
-            .Where(f => f.IsConst)
+            .Where(f => f.IsConst && f.IsStatic)
             .ToDictionary(f => f.ConstantValue);
 
         var destMembers = enumPair.DestinationEnum.GetMembers()
             .OfType<IFieldSymbol>()
-            .Where(f => f.IsConst)
+            .Where(f => f.IsConst && f.IsStatic)
             .ToDictionary(f => f.ConstantValue, f => f.Name);
 
         foreach (var sourceMember in sourceMembers)
