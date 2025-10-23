@@ -71,7 +71,7 @@ namespace Test.Namespace
 
         Assert.That(
             generatedSource,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
     }
 
@@ -155,7 +155,7 @@ namespace Test.Namespace
 
         Assert.That(
             generatedSource,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
     }
 
@@ -227,7 +227,7 @@ namespace Test.Namespace
         );
         Assert.That(
             generatedSource1,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
 
         var generatedSource2 = result.GeneratedTrees[1].ToString();
@@ -258,7 +258,7 @@ namespace Test.Namespace
         );
         Assert.That(
             generatedSource2,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
     }
 }
