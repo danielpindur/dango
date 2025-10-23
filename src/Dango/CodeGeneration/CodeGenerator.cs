@@ -73,8 +73,22 @@ internal static class CodeGenerator
         var sourceTypeName = ParseTypeName(enumPair.SourceEnum.ToDisplayString());
         var destinationTypeName = ParseTypeName(enumPair.DestinationEnum.ToDisplayString());
 
-        var switchArms = mappings.Select(m => GenerateSwitchArm(enumPair, m)).ToArray();
-
+        // This is needed purely to get rid of compiler warnings as enums are not compile time safe
+        var defaultArm = SwitchExpressionArm(
+            DiscardPattern(),
+            ThrowExpression(
+                ObjectCreationExpression(
+                        QualifiedName(
+                            IdentifierName("System"),
+                            IdentifierName("ArgumentOutOfRangeException")))
+                    .AddArgumentListArguments(
+                        Argument(InvocationExpression(IdentifierName("nameof"))
+                            .AddArgumentListArguments(Argument(IdentifierName("value")))),
+                        Argument(IdentifierName("value")),
+                        Argument(LiteralExpression(SyntaxKind.NullLiteralExpression)))));
+        
+        var switchArms = mappings.Select(m => GenerateSwitchArm(enumPair, m)).Append(defaultArm).ToArray();
+        
         var switchExpression = SwitchExpression(IdentifierName("value")).AddArms(switchArms);
 
         return MethodDeclaration(destinationTypeName, mappingMethodName)
@@ -118,8 +132,7 @@ internal static class CodeGenerator
 
         var ifStatement = IfStatement(condition, Block(returnStatement));
 
-        var nullReturn = ReturnStatement(CastExpression(ParseTypeName(enumPair.DestinationEnum.ToDisplayString()),
-            LiteralExpression(SyntaxKind.NullLiteralExpression)));
+        var nullReturn = ReturnStatement(LiteralExpression(SyntaxKind.NullLiteralExpression));
 
         return MethodDeclaration(destinationTypeName, mappingMethodName)
             .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))

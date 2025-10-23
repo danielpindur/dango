@@ -1,26 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <!-- Roslyn generator settings -->
-    <IncludeBuildOutput>true</IncludeBuildOutput>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
     <OutputItemType>Analyzer</OutputItemType>
     <IsRoslynComponent>true</IsRoslynComponent>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\Generated\Dango</CompilerGeneratedFilesOutputPath>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Pack>true</Pack>
     <PackageType>Analyzer</PackageType>
 
     <!-- NuGet package metadata -->
     <PackageId>Dango</PackageId>
-    <Version>0.1.0</Version> <!-- overridden by release-please -->
     <Authors>Daniel Pindur</Authors>
     <Company>Daniel Pindur</Company>
     <Description>Compile-time safe enum mapping for C# using source generators</Description>
@@ -39,18 +37,25 @@
 
   <ItemGroup>
     <!-- Mark the compiled generator DLL as analyzer -->
-    <None Include="$(OutputPath)\$(AssemblyName).dll" 
+    <None Include="$(TargetPath)" 
+          Pack="true" 
+          PackagePath="analyzers/dotnet/cs" 
+          Visible="false" />
+
+    <!-- Pack abstractions alongside generator (needed at runtime) -->
+    <None Include="$(OutputPath)\Dango.Abstractions.dll" 
           Pack="true" 
           PackagePath="analyzers/dotnet/cs" 
           Visible="false" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dango.Abstractions\Dango.Abstractions.csproj" />
+    <ProjectReference Include="..\Dango.Abstractions\Dango.Abstractions.csproj" PrivateAssets="contentfiles;build" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all" />
+    <PackageReference Update="NETStandard.Library" Version="2.0.3" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
