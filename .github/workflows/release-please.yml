@@ -39,15 +39,6 @@ jobs:
         if: ${{ steps.release.outputs.release_created == 'true' }}
         run: dotnet build --configuration Release --no-restore
 
-      # Pack Dango.Abstractions
-      - name: Pack Dango.Abstractions
-        if: ${{ steps.release.outputs.release_created == 'true' }}
-        run: dotnet pack src/Dango.Abstractions/Dango.Abstractions.csproj \
-          --configuration Release \
-          --no-build \
-          --output ./artifacts \
-          /p:PackageVersion=${{ steps.release.outputs.version }}
-
       # Pack Dango
       - name: Pack Dango
         if: ${{ steps.release.outputs.release_created == 'true' }}
