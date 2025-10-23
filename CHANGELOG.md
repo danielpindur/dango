@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/danielpindur/dango/compare/Dango-v0.1.0...Dango-v0.2.0) (2025-10-23)
+
+
+### Features
+
+* fix release version ([b8567a7](https://github.com/danielpindur/dango/commit/b8567a7c238a6b316ffd3d85c09e84db0fc7604d))
+
 ## [0.1.0](https://github.com/danielpindur/dango/compare/Dango-v0.0.1...Dango-v0.1.0) (2025-10-23)
 
 
