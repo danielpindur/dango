@@ -4,8 +4,8 @@
 ### New Rules
 Rule ID | Category       | Severity | Notes                                  
 ---------|----------------|----------|----------------------------------------
-TOFU001 | Dango.Generator | Warning  | Missing IDangoMapperRegistrar interface 
-TOFU002 | Dango.Generator | Error    | Missing Register method                
-TOFU003 | Dango.Generator | Warning  | Duplicate enum mapping                 
-TOFU004 | Dango.Generator | Error    | Invalid enum type                      
-TOFU005 | Dango.Generator | Error | DiagnosticDescriptors
+DANGO001 | Dango.Generator | Warning  | Missing IDangoMapperRegistrar interface 
+DANGO002 | Dango.Generator | Error    | Missing Register method                
+DANGO003 | Dango.Generator | Warning  | Duplicate enum mapping                 
+DANGO004 | Dango.Generator | Error    | Invalid enum type                      
+DANGO005 | Dango.Generator | Error | DiagnosticDescriptors

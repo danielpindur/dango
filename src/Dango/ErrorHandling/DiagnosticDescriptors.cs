@@ -5,7 +5,7 @@ namespace Dango.ErrorHandling;
 public static class DiagnosticDescriptors
 {
     public static readonly DiagnosticDescriptor MissingRegistrarInterfaceImplementation = new(
-        id: "TOFU001",
+        id: "DANGO001",
         title: "Missing IDangoMapperRegistrar implementation",
         messageFormat: "Could not find any class implementing IDangoMapperRegistrar",
         category: "Dango.Generator",
@@ -14,7 +14,7 @@ public static class DiagnosticDescriptors
         description: "An implementation of IDangoMapperRegistrar interface is required for enum mapping generation.");
 
     public static readonly DiagnosticDescriptor MissingRegisterMethod = new(
-        id: "TOFU002",
+        id: "DANGO002",
         title: "Missing Register method",
         messageFormat: "Class '{0}' implements IDangoMapperRegistrar but has no valid Register method",
         category: "Dango.Generator",
@@ -23,7 +23,7 @@ public static class DiagnosticDescriptors
         description: "IDangoMapperRegistrar implementations must have a Register method with one parameter.");
 
     public static readonly DiagnosticDescriptor DuplicateEnumMapping = new(
-        id: "TOFU003",
+        id: "DANGO003",
         title: "Duplicate enum mapping",
         messageFormat: "Duplicate mapping from '{0}' to '{1}' detected",
         category: "Dango.Generator",
@@ -32,7 +32,7 @@ public static class DiagnosticDescriptors
         description: "Multiple mappings for the same source and destination enum pair were found.");
 
     public static readonly DiagnosticDescriptor InvalidEnumType = new(
-        id: "TOFU004",
+        id: "DANGO004",
         title: "Invalid enum type",
         messageFormat: "Type argument '{0}' in Enum<TSource, TDest>() is not an enum type",
         category: "Dango.Generator",
@@ -41,7 +41,7 @@ public static class DiagnosticDescriptors
         description: "Both type arguments to the Enum method must be enum types.");
 
     public static readonly DiagnosticDescriptor MissingMappingForSourceEnumValue = new(
-        id: "TOFU005",
+        id: "DANGO005",
         title: "Missing mapping for source enum value",
         messageFormat: "Value '{0}' from enum {1} could not be mapped to a value from enum {2}",
         category: "Dango.Generator",
