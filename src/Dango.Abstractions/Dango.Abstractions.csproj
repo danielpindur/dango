@@ -6,7 +6,23 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <IsPackable>false</IsPackable>
+
+    <PackageId>Dango.Abstractions</PackageId>
+    <Authors>Daniel Pindur</Authors>
+    <Company>Daniel Pindur</Company>
+    <Version>0.1.0</Version>
+    <Description>Compile-time safe enum mapping for C# using source generators</Description>
+    <PackageTags>enum;mapping;source-generator;roslyn;compile-time</PackageTags>
+    <PackageProjectUrl>https://github.com/danielpindur/dango</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/danielpindur/dango</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Include README in package -->
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  
 </Project>

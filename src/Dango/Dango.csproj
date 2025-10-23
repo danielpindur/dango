@@ -21,6 +21,7 @@
     <PackageId>Dango</PackageId>
     <Authors>Daniel Pindur</Authors>
     <Company>Daniel Pindur</Company>
+    <Version>0.1.0</Version>
     <Description>Compile-time safe enum mapping for C# using source generators</Description>
     <PackageTags>enum;mapping;source-generator;roslyn;compile-time</PackageTags>
     <PackageProjectUrl>https://github.com/danielpindur/dango</PackageProjectUrl>
