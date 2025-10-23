@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dango" Version="1.0.0" />
+    <PackageReference Include="Dango" Version="0.1.0" />
   </ItemGroup>
 
   <ItemGroup>

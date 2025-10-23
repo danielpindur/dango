@@ -6,7 +6,8 @@
       "changelog-path": "CHANGELOG.md",
       "bump-minor-pre-major": true,
       "extra-files": [
-        "src/Dango/Dango.csproj"
+        "src/Dango/Dango.csproj",
+        "src/Dango.Abstractions/Dango.Abstractions.csproj"
       ]
     }
   }
