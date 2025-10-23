@@ -1,5 +1,8 @@
 # Dango - Compile-Time Safe Enum Mapping for C#
 
+[![CI Status](https://github.com/danielpindur/dango/actions/workflows/release-please.yml/badge.svg)](https://github.com/danielpindur/dango/actions/workflows/dotnet-ci.yml)
+[![NuGet](https://img.shields.io/nuget/v/Dango.svg?style=flat-square)](https://www.nuget.org/packages/Dango/)
+
 ## Why?
 
 Currently the most used C# mapping library is [AutoMapper](https://automapper.org/), which I am not a big fan of, because it shifts potential errors to runtime instead of compile time. This can be a problem, especially in large projects, where a simple refactoring change can break the mapping without the developer noticing it until runtime.
