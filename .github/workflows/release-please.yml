@@ -13,45 +13,33 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      # Checkout the repository
-      - uses: actions/checkout@v4
-
-      # Run Release Please
-      - uses: google-github-actions/release-please-action@v4
+      - uses: googleapis/release-please-action@v4 
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          release-type: simple
-          package-name: dango
-
-      # Only continue if a release was created
+          
+      - name: Checkout
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+        
       - name: Setup .NET
-        if: ${{ steps.release.outputs.release_created == 'true' }}
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
+          
       - name: Restore dependencies
-        if: ${{ steps.release.outputs.release_created == 'true' }}
+        if: ${{ steps.release.outputs.release_created }}
         run: dotnet restore
-
+        
       - name: Build
-        if: ${{ steps.release.outputs.release_created == 'true' }}
+        if: ${{ steps.release.outputs.release_created }}
         run: dotnet build --configuration Release --no-restore
-
-      # Pack Dango
-      - name: Pack Dango
-        if: ${{ steps.release.outputs.release_created == 'true' }}
-        run: dotnet pack src/Dango/Dango.csproj \
-          --configuration Release \
-          --no-build \
-          --output ./artifacts \
-          /p:PackageVersion=${{ steps.release.outputs.version }}
-
-      # Push all packages to NuGet
+        
+      - name: Pack
+        if: ${{ steps.release.outputs.release_created }}
+        run: dotnet pack --configuration Release --no-build --output ./artifacts
+        
       - name: Push to NuGet
-        if: ${{ steps.release.outputs.release_created == 'true' }}
-        run: dotnet nuget push ./artifacts/*.nupkg \
-          --api-key ${{ secrets.NUGET_API_KEY }} \
-          --source https://api.nuget.org/v3/index.json \
-          --skip-duplicate
+        if: ${{ steps.release.outputs.release_created }}
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

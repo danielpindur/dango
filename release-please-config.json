@@ -4,7 +4,6 @@
       "release-type": "simple",
       "package-name": "Dango",
       "changelog-path": "CHANGELOG.md",
-      "initial-version": "0.1.0",
       "bump-minor-pre-major": true,
       "extra-files": [
         "src/Dango/Dango.csproj"
