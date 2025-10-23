@@ -1,6 +1,6 @@
 # Dango - Compile-Time Safe Enum Mapping for C#
 
-[![CI Status](https://github.com/danielpindur/dango/actions/workflows/release-please.yml/badge.svg)](https://github.com/danielpindur/dango/actions/workflows/dotnet-ci.yml)
+[![CI Status](https://github.com/danielpindur/dango/actions/workflows/dotnet-ci.yml/badge.svg)](https://github.com/danielpindur/dango/actions/workflows/dotnet-ci.yml)
 [![NuGet](https://img.shields.io/nuget/v/Dango.svg?style=flat-square)](https://www.nuget.org/packages/Dango/)
 
 ## Why?
