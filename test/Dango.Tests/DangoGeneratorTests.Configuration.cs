@@ -61,7 +61,7 @@ namespace Test.Namespace
 
         Assert.That(
             generatedSource,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
     }
 
@@ -124,7 +124,7 @@ namespace Test.Namespace
 
         Assert.That(
             generatedSource,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
     }
 
@@ -188,7 +188,7 @@ namespace Test.Namespace
 
         Assert.That(
             generatedSource,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
     }
 
@@ -342,7 +342,7 @@ namespace Test.Namespace
 
         Assert.That(
             generatedSource,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
     }
 
@@ -418,7 +418,7 @@ namespace Test.Namespace
 
         Assert.That(
             generatedSource,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
     }
 
@@ -495,7 +495,7 @@ namespace Test.Namespace
 
         Assert.That(
             generatedSource,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
     }
 
@@ -572,7 +572,7 @@ namespace Test.Namespace
 
         Assert.That(
             generatedSource,
-            Does.Not.Contain("=> throw new System.ArgumentOutOfRangeException")
+            Does.Contain("=> throw new System.ArgumentOutOfRangeException")
         );
     }
 }
