@@ -6,8 +6,16 @@
       "changelog-path": "CHANGELOG.md",
       "bump-minor-pre-major": true,
       "extra-files": [
-        "src/Dango/Dango.csproj",
-        "src/Dango.Abstractions/Dango.Abstractions.csproj"
+        {
+          "type": "xml",
+          "path": "src/Dango/Dango.csproj",
+          "xpath": "/Project/PropertyGroup/Version"
+        },
+        {
+          "type": "xml",
+          "path": "src/Dango.Abstractions/Dango.Abstractions.csproj",
+          "xpath": "/Project/PropertyGroup/Version"
+        }
       ]
     }
   }
