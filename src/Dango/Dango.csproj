@@ -21,7 +21,7 @@
     <PackageId>Dango</PackageId>
     <Authors>Daniel Pindur</Authors>
     <Company>Daniel Pindur</Company>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
     <Description>Compile-time safe enum mapping for C# using source generators</Description>
     <PackageTags>enum;mapping;source-generator;roslyn;compile-time</PackageTags>
     <PackageProjectUrl>https://github.com/danielpindur/dango</PackageProjectUrl>
@@ -49,7 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all"/>
     <PackageReference Update="NETStandard.Library" Version="2.0.3" PrivateAssets="all"/>
   </ItemGroup>
 
