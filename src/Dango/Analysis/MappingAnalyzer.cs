@@ -8,7 +8,7 @@ namespace Dango.Analysis;
 internal static class MappingAnalyzer
 {
     public static Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> AnalyzeMappings(
-        SourceProductionContext context, 
+        SourceProductionContext context,
         IMethodSymbol registerMethod,
         SemanticModel model)
     {
@@ -210,7 +210,7 @@ internal static class MappingAnalyzer
     }
 
     private static void AddMapping(
-        Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> enumMappingsBySourceEnum, 
+        Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> enumMappingsBySourceEnum,
         EnumPair enumPair,
         EnumMapping mapping)
     {
