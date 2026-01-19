@@ -15,14 +15,14 @@ public interface IDangoEnumMappingConfiguration<TSource, TDestination>
     /// </summary>
     /// <returns>The configuration instance for method chaining.</returns>
     IDangoEnumMappingConfiguration<TSource, TDestination> MapByValue();
-    
+
     /// <summary>
     /// Configures the mapping to match enum values by their names (default behavior).
     /// For example, SourceEnum.Active will map to DestinationEnum.Active if both exist.
     /// </summary>
     /// <returns>The configuration instance for method chaining.</returns>
     IDangoEnumMappingConfiguration<TSource, TDestination> MapByName();
-    
+
     /// <summary>
     /// Specifies a default destination value to use when a source enum value has no matching destination value.
     /// This prevents compilation errors when the destination enum has fewer values than the source.
@@ -30,7 +30,7 @@ public interface IDangoEnumMappingConfiguration<TSource, TDestination>
     /// <param name="defaultValue">The default destination enum value to use for unmapped source values.</param>
     /// <returns>The configuration instance for method chaining.</returns>
     IDangoEnumMappingConfiguration<TSource, TDestination> WithDefault(TDestination defaultValue);
-    
+
     /// <summary>
     /// Provides custom mappings for specific source enum values, overriding the default mapping strategy.
     /// This is useful when certain values need special handling that doesn't follow the name or value pattern.

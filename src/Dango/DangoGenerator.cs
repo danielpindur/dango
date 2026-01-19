@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Dango.Abstractions;
 using Dango.Analysis;
 using Dango.CodeGeneration;
 using Dango.ErrorHandling;
@@ -27,7 +26,7 @@ public sealed class DangoGenerator : IIncrementalGenerator
         (Compilation compilation, ImmutableArray<ClassDeclarationSyntax> candidates) input)
     {
         var (compilation, candidates) = input;
-        var registrarInterface = compilation.GetTypeByMetadataName(typeof(IDangoMapperRegistrar).FullName!)!;
+        var registrarInterface = compilation.GetTypeByMetadataName(WellKnownTypes.IDangoMapperRegistrarFullName)!;
 
         var enumMappingsBySourceEnum = new Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>>(SymbolEqualityComparer.Default);
         var registrarInterfaceImplementationFound = false;
@@ -47,7 +46,7 @@ public sealed class DangoGenerator : IIncrementalGenerator
 
             registrarInterfaceImplementationFound = true;
 
-            var registerMethod = symbol.GetMembers(nameof(IDangoMapperRegistrar.Register))
+            var registerMethod = symbol.GetMembers(WellKnownTypes.RegisterMethodName)
                 .OfType<IMethodSymbol>()
                 .FirstOrDefault(m => m.Parameters.Length == 1);
 
@@ -90,7 +89,7 @@ public sealed class DangoGenerator : IIncrementalGenerator
     private static void AddToResolvedMappings(
         SourceProductionContext context,
         Location location,
-        Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> enumMappingsBySourceEnum, 
+        Dictionary<INamedTypeSymbol, Dictionary<EnumPair, EnumMapping>> enumMappingsBySourceEnum,
         EnumPair enumPair,
         EnumMapping mapping)
     {

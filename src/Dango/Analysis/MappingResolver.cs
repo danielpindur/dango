@@ -8,7 +8,7 @@ namespace Dango.Analysis;
 internal static class MappingResolver
 {
     public static IEnumerable<(string SourceValue, string DestinationValue)> ResolveValueMappings(
-        SourceProductionContext context, 
+        SourceProductionContext context,
         EnumPair enumPair,
         EnumMapping mapping)
     {
@@ -21,7 +21,7 @@ internal static class MappingResolver
     }
 
     private static IEnumerable<(string SourceValue, string DestinationValue)> ResolveValueMappingsByName(
-        SourceProductionContext context, 
+        SourceProductionContext context,
         EnumPair enumPair,
         EnumMapping mapping)
     {
@@ -30,13 +30,13 @@ internal static class MappingResolver
             .Where(f => f.IsConst && f.IsStatic)
             .Select(f => f.Name)
             .ToList();
-    
+
         var destinationEnumValues = enumPair.DestinationEnum.GetMembers()
             .OfType<IFieldSymbol>()
             .Where(f => f.IsConst && f.IsStatic)
             .Select(f => f.Name)
             .ToImmutableHashSet();
-        
+
         foreach (var enumValue in sourceEnumValues)
         {
             if (mapping.Overrides is not null && mapping.Overrides.TryGetValue(enumValue, out var destNameOverride))
@@ -60,7 +60,7 @@ internal static class MappingResolver
     }
 
     private static IEnumerable<(string SourceValue, string DestinationValue)> ResolveValueMappingsByValue(
-        SourceProductionContext context, 
+        SourceProductionContext context,
         EnumPair enumPair,
         EnumMapping mapping)
     {
