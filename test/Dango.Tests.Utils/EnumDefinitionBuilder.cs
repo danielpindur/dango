@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Dango.Tests.Utils;
 
 public static class EnumDefinitionBuilder
@@ -13,10 +15,6 @@ public static class EnumDefinitionBuilder
 
     public static string BuildEnumDefinitionWithValues(string enumName, IEnumerable<string> values, string? namespaceName = null)
     {
-        var namespaceDeclaration = string.IsNullOrEmpty(namespaceName)
-            ? ""
-            : $"namespace {namespaceName};\n\n";
-
         var sb = new StringBuilder();
 
         if (!string.IsNullOrEmpty(namespaceName))

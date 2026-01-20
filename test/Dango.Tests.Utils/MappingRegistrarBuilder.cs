@@ -75,7 +75,9 @@ public static class MappingRegistrarBuilder
 public class MappingConfig
 {
     public MappingStrategy Strategy { get; set; } = MappingStrategy.ByName;
+    
     public string? DefaultValue { get; set; }
+    
     public Dictionary<string, string>? Overrides { get; set; }
 }
 
