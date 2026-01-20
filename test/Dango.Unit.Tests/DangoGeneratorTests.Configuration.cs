@@ -148,7 +148,7 @@ namespace Test.Namespace
         {
             registry.Enum<SourceEnum, DestinationEnum>()
                 .WithDefault(DestinationEnum.C);
-        }<
+        }
     }
 }";
 

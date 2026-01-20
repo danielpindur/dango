@@ -14,12 +14,21 @@ public static class MappingRegistrarBuilder
             : $"namespace {namespaceName};\n\n";
 
         var sb = new StringBuilder();
-        sb.AppendLine(@$"{namespaceDeclaration}using Dango.Abstractions;
 
-public class {registrarClassName} : IDangoMapperRegistrar
-{{
-    public void Register(IDangoMapperRegistry registry)
-    {{");
+        sb.AppendLine("using Dango.Abstractions;");
+        sb.AppendLine("using System.Collections.Generic;");
+
+        if (!string.IsNullOrEmpty(namespaceName))
+        {
+            sb.AppendLine();
+            sb.AppendLine($"namespace {namespaceName};");
+            sb.AppendLine();
+        }
+
+        sb.AppendLine($"public class {registrarClassName} : IDangoMapperRegistrar");
+        sb.AppendLine("{");
+        sb.AppendLine("    public void Register(IDangoMapperRegistry registry)");
+        sb.AppendLine("    {");
 
         foreach (var (sourceEnum, destinationEnum, config) in mappings)
         {
@@ -41,8 +50,7 @@ public class {registrarClassName} : IDangoMapperRegistrar
 
             if (config.Overrides != null && config.Overrides.Count > 0)
             {
-                sb.AppendLine();
-                sb.Append("            .WithOverrides(new Dictionary<");
+                sb.AppendLine("            .WithOverrides(new Dictionary<");
                 sb.Append($"{sourceEnum}, {destinationEnum}>");
                 sb.AppendLine(" {");
 

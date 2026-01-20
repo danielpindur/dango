@@ -8,16 +8,7 @@ public static class EnumDefinitionBuilder
             .Select(i => $"Value{i}")
             .ToList();
 
-        var namespaceDeclaration = string.IsNullOrEmpty(namespaceName)
-            ? ""
-            : $"namespace {namespaceName};\n\n";
-
-        var enumValues = string.Join(",\n        ", values);
-
-        return $@"{namespaceDeclaration}public enum {enumName}
-{{
-        {enumValues}
-}}";
+        return BuildEnumDefinitionWithValues(enumName, values, namespaceName);
     }
 
     public static string BuildEnumDefinitionWithValues(string enumName, IEnumerable<string> values, string? namespaceName = null)
@@ -26,11 +17,22 @@ public static class EnumDefinitionBuilder
             ? ""
             : $"namespace {namespaceName};\n\n";
 
-        var enumValues = string.Join(",\n        ", values);
+        var sb = new StringBuilder();
 
-        return $@"{namespaceDeclaration}public enum {enumName}
-{{
-        {enumValues}
-}}";
+        if (!string.IsNullOrEmpty(namespaceName))
+        {
+            sb.AppendLine($"namespace {namespaceName};");
+            sb.AppendLine();
+        }
+
+        sb.AppendLine($"public enum {enumName}");
+        sb.AppendLine("{");
+        foreach (var value in values)
+        {
+            sb.AppendLine($"    {value},");
+        }
+        sb.AppendLine("}");
+
+        return sb.ToString();
     }
 }
