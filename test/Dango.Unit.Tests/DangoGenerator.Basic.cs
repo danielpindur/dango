@@ -1,51 +1,11 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Dango.ErrorHandling;
+using Dango.Tests.Utils;
 
-namespace Dango.Tests;
+namespace Dango.Unit.Tests;
 
 [TestFixture]
 public partial class DangoGeneratorTests
 {
-    private static GeneratorDriverRunResult RunGenerator(
-        string source,
-        params string[] additionalSources
-    )
-    {
-        var syntaxTrees = new[] { source }
-            .Concat(additionalSources)
-            .Select(s => CSharpSyntaxTree.ParseText(s))
-            .ToArray();
-
-        var references = AppDomain
-            .CurrentDomain.GetAssemblies()
-            .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
-            .Select(a => MetadataReference.CreateFromFile(a.Location))
-            .Cast<MetadataReference>()
-            .ToList();
-
-        references.Add(
-            MetadataReference.CreateFromFile(
-                typeof(Abstractions.IDangoMapperRegistrar).Assembly.Location
-            )
-        );
-
-        var compilation = CSharpCompilation.Create(
-            "Test.Assembly",
-            syntaxTrees,
-            references,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-        );
-
-        var generator = new DangoGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
-
-        driver = (CSharpGeneratorDriver)
-            driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out _);
-
-        return driver.GetRunResult();
-    }
-
     [Test]
     public void Generator_WithNoRegistrars_GeneratesNoOutputWithWarning()
     {
@@ -57,7 +17,7 @@ namespace Test.Namespace
     }
 }";
 
-        var result = RunGenerator(source);
+        var result = GeneratorTestHelper.RunGenerator(source);
 
         Assert.That(
             result.Diagnostics.Single().Id,
@@ -83,7 +43,7 @@ namespace Test.Namespace
     }
 }";
 
-        var result = RunGenerator(source);
+        var result = GeneratorTestHelper.RunGenerator(source);
 
         Assert.That(
             result.Diagnostics.Single().Id,
@@ -109,7 +69,7 @@ namespace Test.Namespace
     }
 }";
 
-        var result = RunGenerator(source);
+        var result = GeneratorTestHelper.RunGenerator(source);
 
         Assert.That(result.Diagnostics, Is.Empty);
         Assert.That(result.GeneratedTrees, Is.Empty);

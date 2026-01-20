@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dango", "src\Dango\Dango.csproj", "{0C1C7D4D-55C2-4083-BB84-8FA2DC171B0E}"
 EndProject
@@ -6,7 +6,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dango.Abstractions", "src\D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1802D0C6-8F63-40F7-A865-03FC7526E6BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dango.Tests", "test\Dango.Tests\Dango.Tests.csproj", "{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dango.Tests.Utils", "test\Dango.Tests.Utils\Dango.Tests.Utils.csproj", "{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dango.Unit.Tests", "test\Dango.Unit.Tests\Dango.Unit.Tests.csproj", "{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,12 +24,17 @@ Global
 		{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91D3200F-AAF2-4C9C-9EF1-5549799FAF68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{436B51E5-ACF9-4F52-866B-A4C99F5C01E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D} = {1802D0C6-8F63-40F7-A865-03FC7526E6BE}
 		{436B51E5-ACF9-4F52-866B-A4C99F5C01E4} = {1802D0C6-8F63-40F7-A865-03FC7526E6BE}
 	EndGlobalSection
 EndGlobal

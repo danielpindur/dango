@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -23,6 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Dango.Tests.Utils\Dango.Tests.Utils.csproj" />
 		<ProjectReference Include="..\..\src\Dango\Dango.csproj" />
 	</ItemGroup>
 

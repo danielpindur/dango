@@ -1,4 +1,6 @@
-namespace Dango.Tests;
+using Dango.Tests.Utils;
+
+namespace Dango.Unit.Tests;
 
 public partial class DangoGeneratorTests
 {
@@ -37,7 +39,7 @@ namespace Test
     }
 }";
 
-        var result = RunGenerator(source);
+        var result = GeneratorTestHelper.RunGenerator(source);
 
         Assert.That(result.Diagnostics, Is.Empty);
         Assert.That(
@@ -104,7 +106,7 @@ namespace Test
     }
 }";
 
-        var result = RunGenerator(source);
+        var result = GeneratorTestHelper.RunGenerator(source);
 
         Assert.That(result.Diagnostics, Is.Empty);
         Assert.That(
@@ -171,7 +173,7 @@ namespace Test
     }
 }";
 
-        var result = RunGenerator(source);
+        var result = GeneratorTestHelper.RunGenerator(source);
 
         Assert.That(result.Diagnostics, Is.Empty);
         Assert.That(
